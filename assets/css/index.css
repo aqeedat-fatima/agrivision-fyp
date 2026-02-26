@@ -961,3 +961,39 @@ h2, h3, h4, h5{ color: var(--ag-ink); }
         width: 300px;
     }
 }
+
+/* =========================
+   GALLERY: smaller + no bg
+========================= */
+
+/* Remove owl item background/card + extra shadow */
+#gallery .img-gallery .owl-item{
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Make images smaller + keep clean aspect ratio */
+#gallery .img-gallery img{
+  width: auto !important;       /* don't stretch full width */
+  max-width: 260px;             /* ✅ smaller (adjust 220-300) */
+  height: auto !important;      /* keep aspect ratio */
+  display: block;
+  margin: 0 auto;
+  background: transparent !important;
+}
+
+/* Optional: reduce the "zoom" effect */
+.img-gallery .owl-item {
+    transform: scale(0.92);
+}
+
+.img-gallery .owl-item.center {
+    transform: scale(1);
+}
+
+/* Mobile tweaks */
+@media (max-width: 768px){
+  #gallery .img-gallery img{
+    max-width: 210px;
+  }
+}
