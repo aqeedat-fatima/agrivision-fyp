@@ -413,11 +413,16 @@ header {
 /*  TESTIMONIALS
 ----------------------*/
 
-.owl-carousel .owl-item img.client-img {
-    width: 110px;
-    margin: 30px auto;
-    border-radius: 50%;
-    box-shadow: 0px 9px 32px 0px rgba(0, 0, 0, 0.07);
+/* Fix distorted testimonial avatars */
+.owl-carousel .owl-item img.client-img{
+  width: 110px;
+  height: 110px;          /* ✅ force a square */
+  object-fit: cover;      /* ✅ crop instead of stretch */
+  object-position: center;
+  border-radius: 50%;
+  display: block;
+  margin: 30px auto;
+  box-shadow: 0px 9px 32px 0px rgba(0, 0, 0, 0.07);
 }
 
 .testimonials-single {
@@ -903,4 +908,56 @@ h2, h3, h4, h5{ color: var(--ag-ink); }
 /* Make testimonial feedback italic */
 .testimonials-single .blockquote {
     font-style: italic;
+}
+
+/* LEAF IMAGE STYLING */
+
+.leaf-container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;   /* ✅ was center */
+}
+
+.leaf-img{
+  width: clamp(320px, 38vw, 560px);
+  max-width: 100%;
+  height: auto;
+  margin-top: 10px;
+  transform: rotate(-6deg);
+  filter: drop-shadow(0px 30px 60px rgba(0,0,0,0.15));
+}
+
+/* Optional subtle hover effect */
+.leaf-img:hover {
+    transform: rotate(-4deg) scale(1.02);
+}
+
+/* ==========================
+   MODULE IMAGE STYLING
+========================== */
+
+.module-img{
+    width: 380px;
+    max-width: 100%;
+    margin-right: 40px;
+    margin-bottom: 20px;
+    transition: transform 0.3s ease;
+}
+
+.module-img:hover{
+    transform: translateY(-5px);
+}
+
+/* Proper spacing between image and text */
+.tab-pane .d-flex{
+    align-items: center;
+    gap: 40px;
+}
+
+/* On mobile stack cleanly */
+@media (max-width: 991px){
+    .module-img{
+        margin: 0 auto 30px;
+        width: 300px;
+    }
 }
