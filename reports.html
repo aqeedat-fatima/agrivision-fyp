@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AgriVision – Reports</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Arimo font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Base dashboard styles (sidebar/topbar) -->
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+  <!-- Reports page styles -->
+  <link rel="stylesheet" href="assets/css/reports.css" />
+</head>
+
+<body>
+<div class="app-shell">
+
+  <!-- ============= SIDEBAR / NAV (same) ============= -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-circle">
+        <img src="assets/images/agrivision-logo.png" alt="AgriVision logo">
+      </div>
+      <div class="logo-texts">
+        <div class="logo-title">AgriVision</div>
+        <div class="logo-subtitle">Aqeedat and Zunair</div>
+      </div>
+      <button class="sidebar-close" aria-label="Close sidebar">✕</button>
+    </div>
+
+    <nav class="nav-main">
+      <a href="dashboard.html" class="nav-item">
+        <img src="assets/icons/dashboard2.png" alt="" class="nav-icon">
+        <span>Dashboard</span>
+      </a>
+
+      <a href="#" class="nav-item">
+        <img src="assets/icons/health.png" alt="" class="nav-icon">
+        <span>Crop Health</span>
+      </a>
+
+      <a href="#" class="nav-item">
+        <img src="assets/icons/satellite.png" alt="" class="nav-icon">
+        <span>Satellite Insights</span>
+      </a>
+
+      <a href="#" class="nav-item">
+        <img src="assets/icons/ndvi.png" alt="" class="nav-icon">
+        <span>NDVI Trends</span>
+      </a>
+
+      <div class="nav-section-label">Monitoring</div>
+
+      <a href="#" class="nav-item">
+        <img src="assets/icons/alerts.png" alt="" class="nav-icon">
+        <span>Alerts</span>
+      </a>
+
+      <!-- ✅ ACTIVE -->
+      <a href="reports.html" class="nav-item active">
+        <div class="nav-pill">
+          <img src="assets/icons/reports.png" alt="" class="nav-icon">
+          <span>Reports</span>
+        </div>
+      </a>
+    </nav>
+
+    <div class="nav-bottom">
+      <a href="settings.html" class="nav-item">
+        <img src="assets/icons/settings.png" alt="" class="nav-icon">
+        <span>Settings</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ============= MAIN AREA ============= -->
+  <main class="main">
+
+    <!-- Topbar (same style) -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="page-title">Reports</h1>
+        <p class="page-subtitle">Welcome Back, Administrator</p>
+      </div>
+
+      <div class="topbar-right">
+        <button class="top-pill top-lang">
+          <img src="assets/icons/globe.png" alt="" class="top-icon">
+          <span>EN</span>
+        </button>
+
+        <button class="top-icon-btn" aria-label="Notifications">
+          <img src="assets/icons/bell.png" alt="" class="top-icon">
+        </button>
+
+        <div class="profile-menu">
+          <button class="top-pill top-profile" id="profileBtn" type="button">
+            <div class="profile-avatar">AF</div>
+            <span>Aqeedat</span>
+            <img src="assets/icons/person.png" alt="" class="top-icon sm">
+          </button>
+
+          <div class="profile-dropdown is-hidden" id="profileDropdown">
+            <button class="profile-item" id="logoutBtn">Log out</button>
+          </div>
+        </div>
+
+        <!-- Export dropdown button (like figma top right) -->
+        <div class="export-wrap">
+          <button class="top-pill export-btn" id="exportMenuBtn" type="button">
+            <span>Current Cycle</span>
+            <img src="assets/icons/dropdown.png" alt="" class="top-icon sm">
+          </button>
+
+          <div class="export-menu is-hidden" id="exportMenu">
+            <button class="export-item" type="button">Export as PDF</button>
+            <button class="export-item" type="button">Export as Excel</button>
+            <button class="export-item" type="button">Print</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page content -->
+    <section class="content reports-content">
+
+      <!-- Title row -->
+      <div class="reports-head">
+        <div>
+          <div class="reports-title">Reports & Analytics</div>
+          <div class="reports-subtitle">
+            Generate satellite and AI-powered reports for crop health and field conditions.
+          </div>
+        </div>
+      </div>
+
+      <!-- Top report cards row (3) -->
+      <section class="reports-generate-row">
+
+        <article class="rep-gen-card">
+          <div class="rep-gen-left">
+            <div class="rep-gen-icon bg-green">
+              <img src="assets/icons/calendar.png" alt="">
+            </div>
+            <div class="rep-gen-text">
+              <div class="rep-gen-title">Crop Health Summary</div>
+              <div class="rep-gen-desc">Overview of crop conditions, detected diseases, and NDVI trends for this month.</div>
+              <button class="rep-gen-btn" type="button">
+                <img src="assets/icons/download.png" class="rep-gen-btn-ic" alt="">
+                Generate
+              </button>
+            </div>
+          </div>
+          
+        </article>
+
+        <article class="rep-gen-card">
+          <div class="rep-gen-left">
+            <div class="rep-gen-icon bg-green">
+              <img src="assets/icons/trend.png" alt="">
+            </div>
+            <div class="rep-gen-text">
+              <div class="rep-gen-title">Satellite Insights Report</div>
+              <div class="rep-gen-desc">Satellite-derived vegetation indices (NDVI, NDWI, SAVI) with temporal graphs.</div>
+              <button class="rep-gen-btn" type="button">
+                <img src="assets/icons/download.png" class="rep-gen-btn-ic" alt="">
+                Generate
+              </button>
+            </div>
+          </div>
+          
+        </article>
+
+        <article class="rep-gen-card">
+          <div class="rep-gen-left">
+            <div class="rep-gen-icon bg-yellow">
+              <img src="assets/icons/AI.png" alt="">
+            </div>
+            <div class="rep-gen-text">
+              <div class="rep-gen-title">AI Model Report</div>
+              <div class="rep-gen-desc">Summary of model predictions, training stats, and Grad-CAM results.</div>
+              <button class="rep-gen-btn" type="button">
+                <img src="assets/icons/download.png" class="rep-gen-btn-ic" alt="">
+                Generate
+              </button>
+            </div>
+          </div>
+          
+        </article>
+
+      </section>
+
+      <!-- Automated reports section 
+      <section class="reports-panel">
+        <div class="reports-panel-head">
+          <div>
+            <div class="reports-panel-title">Automated Reports & Notifications</div>
+            <div class="reports-panel-sub">Regular updates automatically generated by the system.</div>
+          </div>
+
+          <button class="rep-add-btn" type="button">
+            Add Report Schedule
+          </button>
+        </div> -->
+        
+        <!-- Schedules list --> <!--
+        <div class="rep-list">
+
+          <div class="rep-item">
+            <div class="rep-item-left">
+              <div class="rep-item-icon bg-green">
+                <img src="assets/icons/calendar-green.png" alt="">
+              </div>
+              <div class="rep-item-text">
+                <div class="rep-item-title">Monthly NDVI Health Report</div>
+                <div class="rep-item-sub">Every 1st of the month at 8:00 AM</div>
+              </div>
+            </div>
+            <div class="rep-item-right">
+              <div class="rep-format">PDF, Excel</div>
+              <button class="rep-edit-btn" type="button">Edit</button>
+            </div>
+          </div>
+
+          <div class="rep-item">
+            <div class="rep-item-left">
+              <div class="rep-item-icon bg-yellow">
+                <img src="assets/icons/calendar-yellow.png" alt="">
+              </div>
+              <div class="rep-item-text">
+                <div class="rep-item-title">Weekly Disease Detection Summary</div>
+                <div class="rep-item-sub">Every Monday at 9:00 AM</div>
+              </div>
+            </div>
+            <div class="rep-item-right">
+              <div class="rep-format">Excel</div>
+              <button class="rep-edit-btn" type="button">Edit</button>
+            </div>
+          </div>
+
+          <div class="rep-item">
+            <div class="rep-item-left">
+              <div class="rep-item-icon bg-green">
+                <img src="assets/icons/calendar-green.png" alt="">
+              </div>
+              <div class="rep-item-text">
+                <div class="rep-item-title">Daily Satellite Health Snapshot</div>
+                <div class="rep-item-sub">Every day at 6:00 PM</div>
+              </div>
+            </div>
+            <div class="rep-item-right">
+              <div class="rep-format">PDF</div>
+              <button class="rep-edit-btn" type="button">Edit</button>
+            </div>
+          </div>
+
+        </div>
+      </section> -->
+
+      <!-- History section (placeholder for later logic) -->
+      <section class="reports-panel">
+      <div class="reports-panel-head">
+        <div>
+          <div class="reports-panel-title">Report History</div>
+          <div class="reports-panel-sub">Saved reports from your disease detections.</div>
+        </div>
+      </div>
+
+      <div class="rep-list" id="reportHistoryList"></div>
+
+      <div class="rep-history is-hidden" id="reportHistoryEmpty">
+        <div class="rep-history-empty">No reports yet. Run a disease detection to generate your first report.</div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="assets/js/reports.js"></script>
+
+</body>
+</html>

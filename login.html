@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgriVision – Login</title>
+
+    <!-- Arimo font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="assets/css/login.css" />
+</head>
+<body>
+
+    <!-- TOP RIGHT NAVIGATION -->
+<div class="top-nav">
+    <a href="#">Help</a>
+    <a href="#">Contact us</a>
+    <a href="#" class="lang">English ▾</a>
+    <a href="#" class="signup">Sign up</a>
+
+    <img src="assets/images/home.png" class="home-icon" alt="Home" />
+</div>
+
+<div class="container">
+
+    <!-- LEFT SIDE -->
+    <div class="left-section">
+
+        <h2 class="welcome-title">WELCOME BACK!</h2>
+        <p class="subtext">
+            Don't have an account?
+            <a href="#" class="link-accent">Sign up</a>
+        </p>
+
+        <form id="loginForm">
+
+            <!-- username -->
+            <label class="field-label">Username</label>
+            <input
+                type="email"
+                placeholder="deniel123@gmail.com"
+                id="email"
+                class="field-input"
+                required
+            />
+
+            <!-- Password -->
+            <label class="field-label" for="password">Password</label>
+            <div class="password-wrapper">
+                <input
+                    id="password"
+                    name="password"
+                    class="field-input password-input hidden-password"
+                    type="password"
+                    placeholder="••••••"
+                    autocomplete="off"
+                />
+                <button type="button" id="togglePassword" class="eye-icon" aria-label="Show password">
+                    <img id="eyeIcon" src="assets/icons/eye-slash.png" alt="Toggle password visibility">
+                </button>
+            </div>
+
+            <!-- remember + forgot -->
+            <div class="options-row">
+                <label class="remember-label">
+                    <input type="checkbox" id="remember" />
+                    <span class="custom-check"></span>
+                    <span class="remember-text">Remember me</span>
+                </label>
+
+                <a href="#" class="forgot-link">Forget password?</a>
+            </div>
+
+            <!-- sign in -->
+            <button type="submit" class="login-btn">Sign In</button>
+
+            <!-- divider -->
+            <div class="divider">
+                <span>or continue with</span>
+            </div>
+
+            <!-- social icons -->
+            <div class="social-login">
+            <div class="social-btn">
+                <img src="assets/images/google.png" alt="Google" />
+            </div>
+            <div class="social-btn">
+                <img src="assets/images/facebook.png" alt="Facebook" />
+            </div>
+            <div class="social-btn">
+                <img src="assets/images/apple.png" alt="Apple" />
+            </div>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="right-section">
+        <img src="assets/images/login-illustration.png" class="hero-img" alt="Farmer illustration" />
+    </div>
+
+</div>
+
+<script src="assets/js/login.js"></script>
+</body>
+</html>

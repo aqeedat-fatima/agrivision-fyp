@@ -1,0 +1,435 @@
+/* Global reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Arimo", sans-serif;
+}
+
+body, button, input, label, p, a, span, div {
+    font-family: "Arimo", sans-serif !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+
+.field-label {
+  font-weight: 800;
+}
+
+
+/* Make page fill the viewport and center content */
+body {
+    background: #ffffff;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Main layout container */
+.container {
+    width: 100%;
+    max-width: 1700px;       /* wider overall layout */
+    min-height: 80vh;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 40px 80px;      /* reduced horizontal padding */
+    gap: 80px;               /* space between form and image */
+}
+
+/* LEFT SIDE ---------------------------------------------------- */
+
+.left-section {
+    flex: 1.2;
+    max-width: 650px;
+}
+
+.welcome-title {
+    color: #8eb15c;
+    letter-spacing: 3px;
+    font-size: 25px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.subtext {
+    font-size: 16px;
+    color: #666666;
+    margin-bottom: 35px;
+    font-weight: 500;  
+}
+
+.link-accent {
+    color: #8eb15c;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.link-accent:hover {
+    text-decoration: underline;
+}
+
+/* Labels + inputs */
+
+.field-label {
+    display: block;
+    font-size: 15px;
+    font-weight: 500;
+    color: #444444;
+    margin-bottom: 6px;
+    margin-top: 18px;
+}
+
+/* Base style for ALL text inputs (email + password) */
+.field-input {
+    width: 100%;
+    padding: 12px 22px;
+    border-radius: 999px;
+    border: 1px solid #8eb15c;
+    outline: none;
+
+    font-family: "Arimo", sans-serif;
+    font-size: 18px;          /* same size for email + password */
+    font-weight: 400;
+    color: #8eb15c;
+
+    height: 54px;             /* fixed height -> no more shrinking */
+    box-sizing: border-box;
+
+    background-color: #ffffff;
+    transition: border 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+
+.field-input::placeholder {
+    color: #758883;  /* placeholder colour */
+    font-family: "Arimo", sans-serif;
+    font-size: 18px;
+    font-weight: 400; 
+    opacity: 1;
+    height: 48px;          /* 🔥 forces stable height */
+    line-height: 48px;     /* keeps text vertically centered */
+}
+
+.field-input:focus {
+    border-color: #8eb15c;
+    box-shadow: 0 0 0 2px rgba(122, 169, 74, 0.15);
+    background-color: #ffffff;
+}
+
+/* Kill Chrome/Edge autofill yellow/blue look */
+.field-input:-webkit-autofill,
+.field-input:-webkit-autofill:hover,
+.field-input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #758883 !important;
+    font-family: "Arimo", sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+
+    -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+    box-shadow: 0 0 0px 1000px #ffffff inset !important;
+    background-color: #ffffff !important;
+}
+
+/* Base style just for password input text */
+.password-input {
+    font-family: "Arimo", sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: #758883;      /* same as email text */
+}
+
+/* Password pill + eye ------------------------------------------ */
+
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-wrapper .field-input {
+    padding-right: 42px; /* room for eye button */
+}
+
+/* Hidden password → green dots */
+.password-input.hidden-password {
+    -webkit-text-security: disc;
+    color: #758883;
+    letter-spacing: 6px;   /* spread-out dots, but height stays same */
+}
+
+/* Visible password → same style as email input */
+.password-input.visible-password {
+    -webkit-text-security: none;
+    letter-spacing: 0;
+
+    font-family: "Arimo", sans-serif !important;
+    font-size: 16px !important;
+    font-weight: 400 !important;
+    color: #758883 !important;   /* 👈 match email colour */
+}
+
+/* Eye icon button */
+.eye-icon {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    opacity: 0.7;
+    padding: 0;
+}
+
+.eye-icon img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;  /* keep proportions */
+    display: block;       /* removes extra inline spacing */
+    color: #26453e;
+}
+
+.eye-icon:hover img {
+    opacity: 1;
+}
+
+.eye-icon:hover {
+    opacity: 1;
+}
+
+/* Remember + forgot row --------------------------------------- */
+
+.options-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 16px 0 30px;
+}
+
+/* Custom checkbox */
+
+.remember-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #666666;
+}
+
+/* Hide default checkbox */
+.remember-label input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* circular shell */
+.custom-check {
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    border: 1px solid #8eb15c;
+    display: inline-block;
+    position: relative;
+}
+
+/* filled circle when checked */
+.remember-label input[type="checkbox"]:checked + .custom-check::after {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 999px;
+    background: #8eb15c;
+}
+
+.remember-text {
+    font-size: 13px;
+    color: #555555;
+}
+
+/* Forgot password link */
+
+.forgot-link {
+    font-size: 13px;
+    font-weight: 1000;
+    color: #8eb15c;
+    text-decoration: none;
+}
+
+.forgot-link:hover {
+    text-decoration: underline;
+}
+
+/* Sign-in button ---------------------------------------------- */
+
+.login-btn {
+    width: 100%;
+    padding: 18px;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #8eb15c, #8eb15c);
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 4px;
+    margin-bottom: 24px;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.login-btn:hover {
+    box-shadow: 0 8px 16px rgba(122, 168, 73, 0.2);
+    transform: translateY(-1px);
+}
+
+/* Divider + social -------------------------------------------- */
+
+.divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 18px 0 22px;
+    color: #999999;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.divider::before,
+.divider::after {
+    content: "";
+    width: 130px;
+    height: 1px;
+    background: #d3dfca;
+}
+
+.divider span {
+    margin: 0 10px;
+    color: #888;
+    font-size: 13px;
+}
+
+/* Social icons */
+
+.social-login {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    margin-top: 20px;
+}
+
+.social-btn {
+    width: 100px;
+    height: 60px;
+    border: 1.95px solid #8eb15c;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.social-btn img {
+    width: 25px;
+    height: 25px;
+}
+
+.social-btn:hover {
+    background: #eef5e6;
+    transform: translateY(-3px);
+}
+
+/* RIGHT SIDE -------------------------------------------------- */
+
+.right-section {
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero-img {
+    width: 100%;          /* fill its half-column */
+    max-width: 650px;     /* similar to form width */
+    height: auto;
+    object-fit: contain;
+}
+
+/* ---------------------- TOP NAVIGATION ---------------------- */
+
+.top-nav {
+    position: absolute;
+    top: 30px;
+    right: 50px;
+
+    display: flex;
+    align-items: center;
+    gap: 45px;
+
+    font-family: "Arimo", sans-serif;
+}
+
+.top-nav a {
+    font-size: 14px;
+    color: #444B59;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.top-nav a:hover {
+    text-decoration: underline;
+}
+
+/* Sign Up should stand out slightly */
+.top-nav .signup {
+    font-weight: 600;
+}
+
+/* Home icon */
+.home-icon {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    opacity: 0.85;
+}
+
+.home-icon:hover {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+
+/* Simple responsiveness */
+
+@media (max-width: 900px) {
+    .container {
+        flex-direction: column;
+        min-height: auto;
+        padding: 30px 24px;
+    }
+
+    .left-section,
+      .right-section {
+          flex: 1;          /* both take equal space */
+          max-width: 100%;
+      }
+
+    .right-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* optional: small left padding so it doesn’t hug the form */
+    padding-left: 200px;
+    }
+
+}

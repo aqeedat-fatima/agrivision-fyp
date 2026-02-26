@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AgriVision – Crop Health Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Arimo font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ============= SIDEBAR / NAV ============= -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-circle">
+        <img src="assets/images/agrivision-logo.png" alt="AgriVision logo">
+      </div>
+      <div class="logo-texts">
+        <div class="logo-title">AgriVision</div>
+        <div class="logo-subtitle">Aqeedat and Zunair</div>
+      </div>
+      <button class="sidebar-close" aria-label="Close sidebar">✕</button>
+    </div>
+
+    <nav class="nav-main">
+      <a href="#" class="nav-item active">
+        <div class="nav-pill">
+          <img src="assets/icons/dashboard.png" alt="" class="nav-icon">
+          <span>Dashboard</span>
+        </div>
+      </a>
+
+      <a href="#" class="nav-item">
+        <img src="assets/icons/health.png" alt="" class="nav-icon">
+        <span>Crop Health</span>
+      </a>
+
+      <a href="#" class="nav-item">
+        <img src="assets/icons/satellite.png" alt="" class="nav-icon">
+        <span>Satellite Insights</span>
+      </a>
+
+      <a href="#" class="nav-item">
+        <img src="assets/icons/ndvi.png" alt="" class="nav-icon">
+        <span>NDVI Trends</span>
+      </a>
+
+      <div class="nav-section-label">Monitoring</div>
+
+      <a href="#" class="nav-item">
+        <img src="assets/icons/alerts.png" alt="" class="nav-icon">
+        <span>Alerts</span>
+      </a>
+
+      <a href="reports.html" class="nav-item">
+        <img src="assets/icons/reports.png" alt="" class="nav-icon">
+        <span>Reports</span>
+      </a>
+    </nav>
+
+    <div class="nav-bottom">
+      <a href="#" class="nav-item">
+        <img src="assets/icons/settings.png" alt="" class="nav-icon">
+        <span>Settings</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ============= MAIN AREA ============= -->
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="page-title">AgriVision Crop Health Dashboard</h1>
+        <p class="page-subtitle">AI + Satellite-Powered Field Insights</p>
+      </div>
+
+      <div class="topbar-right">
+        <button class="top-pill top-lang">
+          <img src="assets/icons/globe.png" alt="" class="top-icon">
+          <span>EN</span>
+        </button>
+
+        <button class="top-icon-btn" aria-label="Notifications">
+          <img src="assets/icons/bell.png" alt="" class="top-icon">
+        </button>
+
+        <div class="profile-menu">
+          <button class="top-pill top-profile" id="profileBtn">
+            <div class="profile-avatar">AF</div>
+            <span>Aqeedat</span>
+            <img src="assets/icons/dropdown.png" alt="" class="top-icon sm">
+          </button>
+
+          <div class="profile-dropdown is-hidden" id="profileDropdown">
+            <button class="profile-item" id="logoutBtn">Log out</button>
+          </div>
+      </div>
+
+
+        <button class="top-pill top-cycle">
+          <span>Current Cycle</span>
+          <img src="assets/icons/dropdown.png" alt="" class="top-icon sm">
+        </button>
+      </div>
+    </header>
+
+    <section class="content">
+
+      <!-- ===== Row 1: KPI cards ===== -->
+      <section class="row row-kpis">
+        <article class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Fields Monitored</span>
+            <div class="kpi-icon kpi-icon-leaf">
+              <img src="assets/icons/leaf.png" alt="">
+            </div>
+          </div>
+          <div class="kpi-value">124</div>
+          <div class="kpi-meta">
+           <span class="kpi-change kpi-change-up">+12.5%</span>
+           <span class="kpi-tag">MoM</span>
+          </div>
+
+        </article>
+
+        <article class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Average NDVI Value</span>
+            <div class="kpi-icon kpi-icon-chart">
+              <img src="assets/icons/chart.png" alt="">
+            </div>
+          </div>
+          <div class="kpi-value">0.72</div>
+          <div class="kpi-meta">
+            <span class="kpi-change kpi-change-down">-2.1%</span>
+            <span class="kpi-tag">MoM</span>
+          </div>
+        </article>
+
+        <article class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Detected Diseases</span>
+            <div class="kpi-icon kpi-icon-heart">
+              <img src="assets/icons/heart.png" alt="">
+            </div>
+          </div>
+          <div class="kpi-value" id="kpiDetectedDiseases">0</div>
+          <div class="kpi-meta">
+            <span class="kpi-change" id="kpiDiseasesMoMValue">—</span>
+            <span class="kpi-tag">MoM</span>
+          </div>
+        </article>
+
+        <article class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Active Alerts</span>
+            <div class="kpi-icon kpi-icon-alert">
+              <img src="assets/icons/warning.png" alt="">
+            </div>
+          </div>
+          <div class="kpi-value">2</div>
+          <div class="kpi-meta">
+            <span class="kpi-tag kpi-tag-orange">High Stress Areas</span>
+          </div>
+        </article>
+      </section>
+
+      <!-- ===== Row 2: Call-to-action cards ===== -->
+      <section class="row row-cta">
+        <article class="cta-card cta-upload" id="uploadCard" role="button" tabindex="0">
+          <div class="cta-left">
+            <div class="cta-icon cta-icon-upload">
+              <img src="assets/icons/upload.png" alt="">
+            </div>
+            <div>
+              <h3 class="cta-title">Upload Crop Image</h3>
+              <p class="cta-text">Upload a leaf photo for disease detection.</p>
+            </div>
+          </div>
+        </article>
+
+        <input type="file" id="imageUploadInput" accept="image/*" style="display:none" />
+
+        <article class="cta-card cta-satellite">
+          <div class="cta-left">
+            <div class="cta-icon cta-icon-satellite">
+              <img src="assets/icons/satellite-overview.png" alt="">
+            </div>
+            <div>
+              <h3 class="cta-title">Satellite Overview</h3>
+              <p class="cta-text">Check the latest Sentinel-2 imagery.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="cta-card cta-alerts">
+          <div class="cta-left">
+            <div class="cta-icon cta-icon-stress">
+              <img src="assets/icons/stress.png" alt="">
+            </div>
+            <div>
+              <h3 class="cta-title">Recent Stress Alerts</h3>
+              <p class="cta-text">2 new NDVI drops detected this week.</p>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <!-- ===== Row 3: Diagnosis result panel ===== -->
+      <section class="row row-results">
+        <article class="result-card" id="resultCard">
+
+          <div class="result-header">
+            <div>
+              <h3 class="result-title">Latest Leaf Diagnosis</h3>
+              <p class="result-subtitle">
+                Upload a cotton leaf photo to view AI-powered disease insights,
+                symptoms, and treatment tips.
+              </p>
+            </div>
+            <span class="result-pill" id="resultStatusPill">No analysis yet</span>
+          </div>
+
+          <div class="result-body" id="resultEmptyState">
+            <p class="result-empty-text">
+              No image analyzed yet. Click <strong>Upload Crop Image</strong> above,
+              choose a clear leaf photo, and we’ll show the diagnosis here.
+            </p>
+          </div>
+
+          <div class="result-body result-body-main is-hidden" id="resultMain">
+            <div class="dx-grid">
+
+              <!-- LEFT -->
+              <div class="dx-left">
+                <div class="dx-card dx-card-image">
+                  <div class="dx-image-wrap">
+                    <img id="resultImage" src="assets/images/leaf-placeholder.png" alt="Leaf preview" class="dx-image"/>
+                    <span class="dx-chip dx-chip-crop">Cotton</span>
+                  </div>
+
+                  <div class="dx-meta">
+                    <div class="dx-top">
+                      <div class="dx-title-block">
+                        <div class="dx-kicker">Latest diagnosis</div>
+
+                        <div class="dx-name-row">
+                          <p class="dx-disease" id="resultDiseaseName">—</p>
+                          <span class="dx-pill" id="resultConfidenceChip">Model confidence: —</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="dx-section">
+                      <div class="dx-section-title">Symptoms</div>
+                      <p class="dx-text" id="resultSymptoms"></p>
+                    </div>
+
+                    <div class="plantix-box plantix-box-blue">
+                      <div class="plantix-box-head">
+                        <div class="plantix-box-title">Recommendations</div>
+                      </div>
+                      <div class="plantix-rec">
+                        <div class="rec-block" id="recOrganic"></div>
+                        <div class="rec-block" id="recChemical"></div>
+                      </div>
+                    </div>
+
+                    <div class="dx-section">
+                      <div class="dx-section-title">What caused it?</div>
+                      <p class="dx-text" id="resultCause"></p>
+                    </div>
+
+                    <div class="dx-section dx-section-last">
+                      <div class="dx-section-title">Preventive Measures</div>
+                      <ul class="dx-list" id="resultPrevention"></ul>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
+              <!-- RIGHT -->
+              <div class="dx-right">
+
+                <!-- ✅ UPDATED Risk Level card (matches your template) -->
+                <div class="risk-alert-card status-low" id="riskCard">
+                  <div class="risk-alert-top">
+                    <div class="risk-alert-icon" aria-hidden="true">
+                      <span id="riskIcon">!</span>
+                    </div>
+                    <div class="risk-alert-headings">
+                      <div class="risk-alert-title" id="riskTitle">Crop Disease Alert</div>
+                    </div>
+                  </div>
+
+                  <div class="risk-alert-body">
+                    <!-- Left summary column -->
+                    <div class="risk-alert-summary">
+                      <div class="risk-alert-label">Disease Detected</div>
+                      <div class="risk-alert-count" id="riskCount">—</div>
+                      <div class="risk-alert-disease" id="riskDiseaseName">—</div>
+                    </div>
+
+                    <!-- Right details column -->
+                    <div class="risk-alert-details">
+                      <div class="risk-alert-badge" id="riskBadge">—</div>
+                      <div class="risk-alert-sub" id="riskSub">
+                        Upload an image to see priority + recommended action.
+                      </div>
+
+                      <ul class="risk-alert-bullets" id="riskBullets"></ul>
+                    </div>
+                  </div>
+
+                  <button class="risk-alert-cta" type="button" onclick="location.assign('reports.html')">
+                    View Detailed Health Reports
+                  </button>
+                </div>
+
+                <!-- Explanation box -->
+                <div class="explain-card" id="explainCard">
+                  <div class="explain-head">
+                    <div class="explain-title">Decision Confidence</div>
+                    <div class="explain-pills">
+                      <span class="mini-pill" id="pillQuality">Photo quality: —</span>
+                      <span class="mini-pill" id="pillAgreement">Agreement: —</span>
+                    </div>
+                  </div>
+                  <p class="explain-text" id="explainText">
+                    We combine model confidence with photo quality and agreement to guide you.
+                  </p>
+                  <div class="explain-tip" id="explainTip">
+                    Tip: Use sharp focus, good light, and include a close-up of the affected area.
+                  </div>
+                </div>
+
+                <!-- Bottom: 2 charts side-by-side -->
+                <div class="dx-right-charts">
+                  <div class="chart-card">
+                  <div class="chart-head">
+                    <div class="chart-title">Diagnosis Confidence</div>
+                  </div>
+
+                  <div class="chart-body">
+                    <canvas id="chartConfidenceGauge"></canvas>
+                  </div>
+
+                  <div class="chart-footer">
+                    <div class="chart-figure">Figure 1 · Model confidence score</div>
+                    <div class="chart-subtext">
+                      Shows how confident the AI is in the predicted disease based on learned patterns.
+                    </div>
+                  </div>
+
+                </div>
+
+
+                 <div class="chart-card">
+                  <div class="chart-header">
+                    <div class="chart-title">Decision Reliability</div>
+                  </div>
+
+                  <div class="chart-body">
+                    <canvas id="chartReliability"></canvas>
+                  </div>
+
+                  <div class="chart-footer">
+                    <div class="chart-figure">Figure 2 · Confidence drivers</div>
+                    <div class="chart-subtext">
+                      Combines model confidence, image quality, and prediction agreement to assess reliability.
+                    </div>
+                  </div>
+
+                </div>
+
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+
+        </article>
+      </section>
+
+    </section>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="assets/js/dashboard.js"></script>
+</body>
+</html>
