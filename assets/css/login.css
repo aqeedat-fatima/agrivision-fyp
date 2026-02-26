@@ -367,46 +367,54 @@ body {
 
 /* ---------------------- TOP NAVIGATION ---------------------- */
 
-.top-nav {
-    position: absolute;
-    top: 30px;
-    right: 50px;
+/* ---------------------- TOP NAV (TOP RIGHT ONLY) ---------------------- */
 
-    display: flex;
-    align-items: center;
-    gap: 45px;
-
-    font-family: "Arimo", sans-serif;
+.top-nav{
+  position: fixed;
+  top: 24px;
+  right: 60px;
+  z-index: 999;
+  background: transparent;
+  width: auto;
+  padding: 0;
 }
 
-.top-nav a {
-    font-size: 14px;
-    color: #444B59;
-    text-decoration: none;
-    font-weight: 500;
+/* Right links group */
+.top-nav .top-links{
+  display: flex;
+  align-items: center;
+  gap: 28px;
 }
 
-.top-nav a:hover {
-    text-decoration: underline;
+.top-nav .top-links a{
+  font-size: 14px;
+  color: #444B59;
+  text-decoration: none;
+  font-weight: 500;
 }
 
-/* Sign Up should stand out slightly */
-.top-nav .signup {
-    font-weight: 600;
+.top-nav .top-links a:hover{
+  text-decoration: underline;
+}
+
+.top-nav .top-links .signup{
+  font-weight: 600;
 }
 
 /* Home icon */
-.home-icon {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-    opacity: 0.85;
+.top-nav .home-icon{
+  width: 18px;
+  height: 18px;
+  display: block;
+  opacity: 0.85;
 }
 
-.home-icon:hover {
-    opacity: 1;
-    transform: scale(1.05);
+.top-nav .home-icon:hover{
+  opacity: 1;
+  transform: scale(1.05);
 }
+
+
 
 
 /* Simple responsiveness */
@@ -433,3 +441,4 @@ body {
     }
 
 }
+

@@ -301,12 +301,12 @@ header {
 }
 
 .box-icon {
-    box-shadow: 0px 0px 43px 0px rgba(0, 0, 0, 0.14);
+    
     padding: 10px;
     width: 70px;
     border-radius: 3px;
     margin-bottom: 1.5rem;
-    background-color: #FFF;
+    
 }
 
 .circle-icon {
@@ -747,7 +747,7 @@ h2, h3, h4, h5{ color: var(--ag-ink); }
   overflow: hidden;
 
   /* Background image (change path if needed) */
-  background-image: url("../images/screen2.png");
+  background-image: url("../images/screen-bg.jpg");
   background-size: cover;
   background-position: center;
 }
@@ -882,4 +882,25 @@ h2, h3, h4, h5{ color: var(--ag-ink); }
     min-height: 75vh;
     padding: 140px 0 110px;
   }
+}
+
+/* FIX: FAQ spacing from previous section */
+#faq.section {
+  padding-top: 80px !important;   /* restore top spacing */
+}
+
+/* optional: add a bit more breathing room */
+#faq .section-title {
+  margin-top: 10px;
+}
+
+.cta-icon{
+  width: 74px;
+  height: 74px;
+  display: block;
+}
+
+/* Make testimonial feedback italic */
+.testimonials-single .blockquote {
+    font-style: italic;
 }
