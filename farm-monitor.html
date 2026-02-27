@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AgriVision — Farm Monitoring</title>
+
+  <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+  <link rel="stylesheet" href="assets/css/farm-monitor.css">
+
+  <!-- Leaflet + draw -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css"/>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="fm-body">
+
+  <div class="fm-topbar">
+    <div>
+      <div class="fm-title">Farm Monitoring</div>
+      <div class="fm-sub">Draw your farm once → tap Update to check crop health.</div>
+    </div>
+
+    <div class="fm-actions">
+      <button class="fm-btn" id="btnLoadFarm">Load Saved Farm</button>
+      <button class="fm-btn" id="btnClearFarm">Clear</button>
+      <button class="fm-btn fm-btn-primary" id="btnUpdate">Update Now</button>
+    </div>
+  </div>
+
+  <div class="fm-grid">
+    <div class="fm-card">
+      <div class="fm-card-title">Farm Map</div>
+      <div class="fm-muted">Use the draw tool to mark your farm boundary.</div>
+      <div id="map" class="fm-map"></div>
+
+      <div class="fm-legend">
+        <span><b>Farm Health View:</b></span>
+        <span class="fm-dot fm-red"></span> Stressed
+        <span class="fm-dot fm-yellow"></span> Moderate
+        <span class="fm-dot fm-green"></span> Healthy
+      </div>
+    </div>
+
+    <div class="fm-card">
+      <div class="fm-row fm-row-between">
+        <div class="fm-card-title">Health Status</div>
+        <div class="fm-badge fm-unknown" id="healthBadge">No Farm Yet</div>
+      </div>
+
+      <div class="fm-row">
+        <div class="fm-field">
+          <label>Start Date</label>
+          <input id="startDate" type="date" />
+        </div>
+        <div class="fm-field">
+          <label>End Date</label>
+          <input id="endDate" type="date" />
+        </div>
+      </div>
+
+      <div class="fm-kpis">
+        <div class="fm-kpi"><div class="fm-kpi-label">Mean NDVI</div><div class="fm-kpi-val" id="kpiMean">—</div></div>
+        <div class="fm-kpi"><div class="fm-kpi-label">Min NDVI</div><div class="fm-kpi-val" id="kpiMin">—</div></div>
+        <div class="fm-kpi"><div class="fm-kpi-label">Max NDVI</div><div class="fm-kpi-val" id="kpiMax">—</div></div>
+      </div>
+
+      <div class="fm-advice">
+        <div class="fm-advice-title">Next steps</div>
+        <ul id="adviceList">
+          <li>Draw your farm boundary.</li>
+          <li>Tap “Update Now” to fetch satellite health.</li>
+        </ul>
+      </div>
+
+      <div class="fm-card-title" style="margin-top:16px;">NDVI Trend (Weekly)</div>
+      <canvas id="trendChart" height="160"></canvas>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+  <script src="assets/js/farm-monitor.js"></script>
+</body>
+</html>

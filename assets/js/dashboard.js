@@ -1040,3 +1040,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    const satelliteCard = document.getElementById("satelliteCard");
+
+    if (satelliteCard) {
+        satelliteCard.addEventListener("click", function () {
+            window.location.href = "farm-monitor.html";
+        });
+
+        // Optional: allow Enter key for accessibility
+        satelliteCard.addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+                window.location.href = "farm-monitor.html";
+            }
+        });
+    }
+});
