@@ -101,6 +101,8 @@ map.on(L.Draw.Event.CREATED, (e) => {
 });
 
 async function updateNow(){
+  const btn = document.getElementById("btnUpdate");
+
   let geom = getCurrentGeometry() || loadGeometry();
   if (!geom){
     setBadge("unknown", "No Farm Yet");
@@ -112,28 +114,43 @@ async function updateNow(){
   const start_date = document.getElementById("startDate").value;
   const end_date = document.getElementById("endDate").value;
 
+  // loading state (disable button)
   setBadge("unknown", "Updating…");
   setAdvice(["Fetching satellite health…", "This can take a few seconds."]);
+  btn.disabled = true;
+  btn.textContent = "Updating…";
 
-  const res = await fetch(`${API_BASE}/satellite/ndvi/mvp`, {
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({ geometry: geom, start_date, end_date })
-  });
+  try {
+    const res = await fetch(`${API_BASE}/satellite/ndvi/mvp`, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ geometry: geom, start_date, end_date })
+    });
 
-  if (!res.ok){
-    const err = await res.json().catch(() => ({}));
+    if (!res.ok){
+      const err = await res.json().catch(() => ({}));
+      setBadge("unknown", "Error");
+      setAdvice([err.detail || "Check backend logs."]);
+      return;
+    }
+
+    const data = await res.json();
+    setOverlay(data.tiles_url);
+    setKpis(data.summary || {});
+    const h = (data.health || {});
+    const emoji = h.level === "good" ? "✅ " : h.level === "warn" ? "⚠️ " : h.level === "bad" ? "🚨 " : "";
+    setBadge(h.level, emoji + (h.label || "Unknown"));
+    setAdvice((data.health || {}).advice || []);
+    renderTrend((data.timeseries || []).slice(-12));
+
+  } catch (e) {
     setBadge("unknown", "Error");
-    setAdvice([err.detail || "Check backend logs."]);
-    return;
+    setAdvice(["Network error. Is the backend running on port 8000?"]);
+  } finally {
+    // ✅ ALWAYS re-enable button
+    btn.disabled = false;
+    btn.textContent = "Update Now";
   }
-
-  const data = await res.json();
-  setOverlay(data.tiles_url);
-  setKpis(data.summary || {});
-  setBadge((data.health || {}).level, (data.health || {}).label);
-  setAdvice((data.health || {}).advice || []);
-  renderTrend((data.timeseries || []).slice(-12));
 }
 
 // buttons
