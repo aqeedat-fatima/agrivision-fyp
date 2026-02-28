@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8000";
+const API_BASE = "http://127.0.0.1:8000";
 const STORAGE_KEY = "agrivision_farm_geometry";
 
 function isoDate(d){ return d.toISOString().slice(0,10); }
@@ -28,7 +28,11 @@ let trendChart = null;
 
 function setBadge(level, text){
   const el = document.getElementById("healthBadge");
-  el.className = "fm-badge " + (level === "good" ? "fm-good" : level === "warn" ? "fm-warn" : level === "bad" ? "fm-bad" : "fm-unknown");
+  el.className =
+    "fm-badge " +
+    (level === "good" ? "fm-good" :
+     level === "warn" ? "fm-warn" :
+     level === "bad"  ? "fm-bad"  : "fm-unknown");
   el.textContent = text || "Unknown";
 }
 
@@ -55,7 +59,10 @@ function getCurrentGeometry(){
   return layers[0].toGeoJSON().geometry;
 }
 
-function saveGeometry(geom){ localStorage.setItem(STORAGE_KEY, JSON.stringify(geom)); }
+function saveGeometry(geom){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(geom));
+}
+
 function loadGeometry(){
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return null;
@@ -70,6 +77,7 @@ function renderGeometry(geom){
 }
 
 function setOverlay(tilesUrl){
+  if (!tilesUrl) return; // ✅ safe
   if (ndviLayer) { map.removeLayer(ndviLayer); ndviLayer = null; }
   ndviLayer = L.tileLayer(tilesUrl, { opacity: 0.70 });
   ndviLayer.addTo(map);
@@ -77,9 +85,14 @@ function setOverlay(tilesUrl){
 
 function renderTrend(timeseries){
   const labels = timeseries.map(p => p.date);
-  const values = timeseries.map(p => (p.mean_ndvi === null || p.mean_ndvi === undefined) ? null : Number(p.mean_ndvi));
+  const values = timeseries.map(p =>
+    (p.mean_ndvi === null || p.mean_ndvi === undefined) ? null : Number(p.mean_ndvi)
+  );
 
-  const ctx = document.getElementById("trendChart").getContext("2d");
+  const canvas = document.getElementById("trendChart");
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
   if (trendChart) trendChart.destroy();
 
   trendChart = new Chart(ctx, {
@@ -109,10 +122,12 @@ async function updateNow(){
     setAdvice(["Draw your farm boundary first.", "Then press “Update Now”."]);
     return;
   }
+
+  // if it was loaded from storage, render it visually
   if (!getCurrentGeometry()) renderGeometry(geom);
 
   const start_date = document.getElementById("startDate").value;
-  const end_date = document.getElementById("endDate").value;
+  const end_date   = document.getElementById("endDate").value;
 
   // loading state (disable button)
   setBadge("unknown", "Updating…");
@@ -135,12 +150,21 @@ async function updateNow(){
     }
 
     const data = await res.json();
-    setOverlay(data.tiles_url);
+
+    // ✅ overlay is optional (won't crash)
+    if (data.tiles_url) setOverlay(data.tiles_url);
+
+    // KPIs
     setKpis(data.summary || {});
+
+    // Health badge
     const h = (data.health || {});
-    const emoji = h.level === "good" ? "✅ " : h.level === "warn" ? "⚠️ " : h.level === "bad" ? "🚨 " : "";
-    setBadge(h.level, emoji + (h.label || "Unknown"));
-    setAdvice((data.health || {}).advice || []);
+    const lvl = h.level || "unknown"; // swagger shows "bad" already
+    const emoji = lvl === "good" ? "✅ " : lvl === "warn" ? "⚠️ " : lvl === "bad" ? "🚨 " : "";
+    setBadge(lvl, emoji + (h.label || "Unknown"));
+
+    // Advice + chart
+    setAdvice(h.advice || []);
     renderTrend((data.timeseries || []).slice(-12));
 
   } catch (e) {
@@ -155,20 +179,29 @@ async function updateNow(){
 
 // buttons
 document.getElementById("btnUpdate").addEventListener("click", updateNow);
+
 document.getElementById("btnLoadFarm").addEventListener("click", () => {
   const geom = loadGeometry();
-  if (!geom){ setBadge("unknown","No Saved Farm"); setAdvice(["Draw your farm boundary to save it."]); return; }
+  if (!geom){
+    setBadge("unknown","No Saved Farm");
+    setAdvice(["Draw your farm boundary to save it."]);
+    return;
+  }
   renderGeometry(geom);
   setBadge("unknown","Farm Loaded");
   setAdvice(["Tap “Update Now” to check health."]);
 });
+
 document.getElementById("btnClearFarm").addEventListener("click", () => {
   drawnItems.clearLayers();
   localStorage.removeItem(STORAGE_KEY);
+
   if (ndviLayer){ map.removeLayer(ndviLayer); ndviLayer = null; }
+
   setBadge("unknown","Cleared");
   setKpis({mean:null,min:null,max:null});
   setAdvice(["Draw your farm boundary again to monitor."]);
+
   if (trendChart){ trendChart.destroy(); trendChart = null; }
 });
 
