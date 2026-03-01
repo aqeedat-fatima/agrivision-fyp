@@ -277,10 +277,26 @@
       </div>
     </section>
 
+    <section class="reports-panel">
+      <div class="reports-panel-head">
+        <div>
+          <div class="reports-panel-title">Satellite Report History</div>
+          <div class="reports-panel-sub">Saved monitoring runs from Farm Monitoring (NDVI/NDMI/EVI).</div>
+        </div>
+      </div>
+
+      <div class="rep-list" id="satReportHistoryList"></div>
+
+      <div class="rep-history is-hidden" id="satReportHistoryEmpty">
+        <div class="rep-history-empty">No satellite reports yet. Save a result from Farm Monitoring first.</div>
+      </div>
+    </section>
+
   </main>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="assets/js/reports.js"></script>
 
 </body>

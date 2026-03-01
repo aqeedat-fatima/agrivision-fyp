@@ -20,7 +20,7 @@
   <aside class="sidebar">
     <div class="sidebar-header">
       <div class="logo-circle">
-        <img src="assets/images/agrivision-logo.png" alt="AgriVision logo">
+        <a href="index.html"><img src="assets/images/agrivision-logo.png" alt="AgriVision logo"></a>
       </div>
       <div class="logo-texts">
         <div class="logo-title">AgriVision</div>
@@ -115,14 +115,14 @@
 
       <!-- ===== Row 1: KPI cards ===== -->
       <section class="row row-kpis">
-        <article class="kpi-card">
+        <article class="kpi-card" id="cardFields">
           <div class="kpi-header">
             <span class="kpi-label">Fields Monitored</span>
             <div class="kpi-icon kpi-icon-leaf">
               <img src="assets/icons/leaf.png" alt="">
             </div>
           </div>
-          <div class="kpi-value">124</div>
+          <div class="kpi-value" id="kpiFieldsMonitored">0</div>
           <div class="kpi-meta">
            <span class="kpi-change kpi-change-up">+12.5%</span>
            <span class="kpi-tag">MoM</span>
@@ -130,14 +130,14 @@
 
         </article>
 
-        <article class="kpi-card">
+        <article class="kpi-card" id="cardAvgNdvi">
           <div class="kpi-header">
             <span class="kpi-label">Average NDVI Value</span>
             <div class="kpi-icon kpi-icon-chart">
               <img src="assets/icons/chart.png" alt="">
             </div>
           </div>
-          <div class="kpi-value">0.72</div>
+          <div class="kpi-value" id="kpiAvgNdvi">0</div>
           <div class="kpi-meta">
             <span class="kpi-change kpi-change-down">-2.1%</span>
             <span class="kpi-tag">MoM</span>
@@ -158,14 +158,14 @@
           </div>
         </article>
 
-        <article class="kpi-card">
+        <article class="kpi-card" id="cardAlerts">
           <div class="kpi-header">
             <span class="kpi-label">Active Alerts</span>
             <div class="kpi-icon kpi-icon-alert">
               <img src="assets/icons/warning.png" alt="">
             </div>
           </div>
-          <div class="kpi-value">2</div>
+          <div class="kpi-value" id="kpiActiveAlerts">0</div>
           <div class="kpi-meta">
             <span class="kpi-tag kpi-tag-orange">High Stress Areas</span>
           </div>

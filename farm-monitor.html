@@ -14,30 +14,33 @@
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- jsPDF (for download/print like disease reports) -->
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 </head>
 
 <body class="fm-body">
   <div class="fm-topbar">
     <div class="fm-left">
-      <a class="fm-back" href="dashboard.html" title="Back to Dashboard" aria-label="Back to Dashboard">
-        ← 
-      </a>
+      <a class="fm-back" href="dashboard.html" title="Back to Dashboard" aria-label="Back to Dashboard">←</a>
 
       <div class="fm-headings">
         <div class="fm-title">Farm Monitoring</div>
-        <div class="fm-sub">Draw your farm once → tap Update to check crop health.</div>
+        <div class="fm-sub">Draw boundary → save farm → Update to track NDVI/NDMI/EVI + change.</div>
       </div>
     </div>
 
     <div class="fm-actions">
-      <button class="fm-btn" id="btnLoadFarm">Load Saved Farm</button>
+      <select class="fm-select" id="farmSelect" title="Select farm"></select>
+      <button class="fm-btn" id="btnSaveFarm">Save Farm</button>
+      <button class="fm-btn" id="btnLoadFarm">Load</button>
       <button class="fm-btn" id="btnClearFarm">Clear</button>
       <button class="fm-btn fm-btn-primary" id="btnUpdate">Update Now</button>
     </div>
   </div>
 
   <div class="fm-grid">
-    <div class="fm-card">
+    <div class="fm-card" id="mapCard">
       <div class="fm-card-title">Farm Map</div>
       <div class="fm-muted">Use the draw tool to mark your farm boundary.</div>
       <div id="map" class="fm-map"></div>
@@ -50,7 +53,7 @@
       </div>
     </div>
 
-    <div class="fm-card">
+    <div class="fm-card" id="statusCard">
       <div class="fm-row fm-row-between">
         <div class="fm-card-title">Health Status</div>
         <div class="fm-badge fm-unknown" id="healthBadge">Ready</div>
@@ -67,22 +70,70 @@
         </div>
       </div>
 
-      <div class="fm-kpis">
-        <div class="fm-kpi"><div class="fm-kpi-label">Mean NDVI</div><div class="fm-kpi-val" id="kpiMean">—</div></div>
-        <div class="fm-kpi"><div class="fm-kpi-label">Min NDVI</div><div class="fm-kpi-val" id="kpiMin">—</div></div>
-        <div class="fm-kpi"><div class="fm-kpi-label">Max NDVI</div><div class="fm-kpi-val" id="kpiMax">—</div></div>
+      <!-- KPI Grid (now 5 cards) -->
+      <div class="fm-kpis fm-kpis-5">
+        <div class="fm-kpi">
+          <div class="fm-kpi-label">NDVI (Vegetation)</div>
+          <div class="fm-kpi-val" id="kpiNdvi">—</div>
+          <div class="fm-kpi-sub">Greenness / vigor</div>
+        </div>
+
+        <div class="fm-kpi">
+          <div class="fm-kpi-label">NDMI (Moisture)</div>
+          <div class="fm-kpi-val" id="kpiNdmi">—</div>
+          <div class="fm-kpi-sub">Water stress signal</div>
+        </div>
+
+        <div class="fm-kpi">
+          <div class="fm-kpi-label">EVI</div>
+          <div class="fm-kpi-val" id="kpiEvi">—</div>
+          <div class="fm-kpi-sub">More robust than NDVI</div>
+        </div>
+
+        <div class="fm-kpi">
+          <div class="fm-kpi-label">Cloud Cover</div>
+          <div class="fm-kpi-val" id="kpiCloud">—</div>
+          <div class="fm-kpi-sub">Lower is better</div>
+        </div>
+
+        <div class="fm-kpi">
+          <div class="fm-kpi-label">Scene Date</div>
+          <div class="fm-kpi-val fm-kpi-date" id="kpiScene">—</div>
+          <div class="fm-kpi-sub">Latest selected image</div>
+        </div>
       </div>
 
       <div class="fm-advice">
-        <div class="fm-advice-title">Next steps</div>
+        <div class="fm-advice-title fm-row fm-row-between">
+          <span>Next steps</span>
+          <span class="fm-pill" id="ndviChangePill" style="display:none;">NDVI change: —</span>
+        </div>
         <ul id="adviceList">
-          <li>Draw your farm boundary.</li>
-          <li>Tap “Update Now” to fetch satellite health.</li>
+          <li>Select or draw a farm boundary.</li>
+          <li>Tap “Update Now” to fetch satellite indices.</li>
         </ul>
       </div>
 
-      <div class="fm-card-title" style="margin-top:16px;">NDVI Trend (Weekly)</div>
-      <canvas id="trendChart" height="160"></canvas>
+      <div class="fm-row fm-row-between" style="margin-top:14px;">
+        <div class="fm-card-title" style="margin:0;">Trend (Weekly)</div>
+
+        <div class="fm-toggle">
+          <button class="fm-toggle-btn is-active" data-series="ndvi" id="btnSeriesNdvi">NDVI</button>
+          <button class="fm-toggle-btn" data-series="ndmi" id="btnSeriesNdmi">NDMI</button>
+          <button class="fm-toggle-btn" data-series="evi"  id="btnSeriesEvi">EVI</button>
+        </div>
+      </div>
+
+      <canvas id="trendChart" height="170"></canvas>
+
+      <div class="fm-foot">
+        <div class="fm-tip" id="trendTip">Tip: NDMI helps indicate moisture stress. EVI is often more stable than NDVI under dense canopy.</div>
+        <div class="fm-row" style="margin-top:10px;">
+          <button class="fm-btn" id="btnSaveRun">Save Result</button>
+          <button class="fm-btn" id="btnDownloadRun">Download PDF</button>
+          <button class="fm-btn" id="btnPrintRun">Print</button>
+        </div>
+      </div>
     </div>
   </div>
 

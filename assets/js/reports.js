@@ -3,13 +3,22 @@ document.addEventListener("DOMContentLoaded", () => {
   // -----------------------
   // Config / Keys
   // -----------------------
-  const STORAGE_KEY_REPORTS = "agrivision_reports"; // must match what dashboard saves
+  const STORAGE_KEY_REPORTS = "agrivision_reports"; // disease reports
   const USER_KEY = "agrivision_user";
-  const STORAGE_KEY_SCANS = "agrivision_scans"; // ✅ all scans including healthy
+  const STORAGE_KEY_SCANS = "agrivision_scans"; // all scans (healthy + diseased)
 
+  // IMPORTANT:
+  // Use BOTH keys for backward compatibility:
+  // - old: agrivision_satellite_reports
+  // - new: agrivision_satellite_runs (recommended from farm-monitor.js)
+  const STORAGE_KEY_SAT_REPORTS_OLD = "agrivision_satellite_reports";
+  const STORAGE_KEY_SAT_RUNS_NEW = "agrivision_satellite_runs";
 
   const historyListEl = document.getElementById("reportHistoryList");
   const emptyEl = document.getElementById("reportHistoryEmpty");
+
+  const satHistoryListEl = document.getElementById("satReportHistoryList");
+  const satEmptyEl = document.getElementById("satReportHistoryEmpty");
 
   // jsPDF is loaded as window.jspdf.jsPDF (UMD build)
   const getJsPdf = () => window.jspdf && window.jspdf.jsPDF;
@@ -38,9 +47,35 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const getScans = () => {
-  const raw = localStorage.getItem(STORAGE_KEY_SCANS);
-  const arr = safeJSON(raw, []);
-  return Array.isArray(arr) ? arr : [];
+    const raw = localStorage.getItem(STORAGE_KEY_SCANS);
+    const arr = safeJSON(raw, []);
+    return Array.isArray(arr) ? arr : [];
+  };
+
+  // ✅ Satellite runs (new + old)
+  const getSatReports = () => {
+    const rawNew = localStorage.getItem(STORAGE_KEY_SAT_RUNS_NEW);
+    const arrNew = safeJSON(rawNew, []);
+    const rawOld = localStorage.getItem(STORAGE_KEY_SAT_REPORTS_OLD);
+    const arrOld = safeJSON(rawOld, []);
+
+    const merged = [
+      ...(Array.isArray(arrNew) ? arrNew : []),
+      ...(Array.isArray(arrOld) ? arrOld : []),
+    ];
+
+    // de-dupe by id if possible
+    const seen = new Set();
+    const out = [];
+    for (const r of merged) {
+      const id = r?.id || null;
+      if (id) {
+        if (seen.has(id)) continue;
+        seen.add(id);
+      }
+      out.push(r);
+    }
+    return out;
   };
 
   // ===== Profile / Logout (shared) =====
@@ -49,18 +84,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const logoutBtn = document.getElementById("logoutBtn");
 
   if (profileBtn && profileDropdown) {
-  profileBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    profileDropdown.classList.toggle("is-hidden");
-  });
+    profileBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      profileDropdown.classList.toggle("is-hidden");
+    });
 
-  profileDropdown?.addEventListener("click", (e) => e.stopPropagation());
+    profileDropdown?.addEventListener("click", (e) => e.stopPropagation());
 
-
-  document.addEventListener("click", () => {
-    profileDropdown.classList.add("is-hidden");
-  });
-}
+    document.addEventListener("click", () => {
+      profileDropdown.classList.add("is-hidden");
+    });
+  }
 
   // Logout
   logoutBtn?.addEventListener("click", () => {
@@ -74,21 +108,12 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.href = "login.html";
   });
 
-
-
-  const saveReports = (arr) => {
-    localStorage.setItem(
-      STORAGE_KEY_REPORTS,
-      JSON.stringify(Array.isArray(arr) ? arr : [])
-    );
-  };
-
   const pad2 = (n) => String(n).padStart(2, "0");
   const formatDateTime = (ts) => {
     const d = new Date(ts || Date.now());
-    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(
-      d.getHours()
-    )}:${pad2(d.getMinutes())}`;
+    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(
+      d.getDate()
+    )} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
   };
 
   const cleanText = (t) => String(t ?? "").replace(/\s+/g, " ").trim();
@@ -134,6 +159,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const getTimestamp = (rep) =>
     rep.timestamp || rep.ts || rep.createdAt || rep.created_at || Date.now();
 
+  const fmt = (v, digits = 2) => {
+    if (v === null || v === undefined || Number.isNaN(v)) return "—";
+    const n = Number(v);
+    if (!Number.isFinite(n)) return "—";
+    return n.toFixed(digits);
+  };
+
   // -----------------------
   // PDF helpers (simple clean layout)
   // -----------------------
@@ -172,6 +204,47 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // -----------------------
+  // Chart -> Image helper (needs Chart.js CDN in reports.html)
+  // -----------------------
+  const makeLineChartImage = async ({ labels, series, title }) => {
+    if (!window.Chart) {
+      console.warn("Chart.js not loaded; skipping charts.");
+      return null;
+    }
+
+    const canvas = document.createElement("canvas");
+    canvas.width = 900;
+    canvas.height = 360;
+    const ctx = canvas.getContext("2d");
+
+    const chart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: title,
+            data: series,
+            spanGaps: true,
+            tension: 0.25,
+          },
+        ],
+      },
+      options: {
+        responsive: false,
+        animation: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { suggestedMin: -0.5, suggestedMax: 2 } },
+      },
+    });
+
+    chart.update();
+    const img = canvas.toDataURL("image/jpeg", 0.88);
+    chart.destroy();
+    return img;
+  };
+
+  // -----------------------
   // Build PDFs
   // -----------------------
   const buildSingleDetectionPDF = (rep) => {
@@ -184,7 +257,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const confidencePct = normalizePercent(
       rep.confidencePct ?? rep.confidence ?? rep.confidence_pct
     );
-    const qualityPct = normalizePercent(rep.qualityPct ?? rep.quality_pct ?? rep.photoQuality);
+    const qualityPct = normalizePercent(
+      rep.qualityPct ?? rep.quality_pct ?? rep.photoQuality
+    );
     const agreementPct = normalizePercent(
       rep.agreementPct ?? rep.agreement_pct ?? rep.agreement
     );
@@ -223,7 +298,8 @@ document.addEventListener("DOMContentLoaded", () => {
     y = addWrappedText(doc, `Disease: ${diseaseName}`, margin, y, 180);
     y += 2;
 
-    if (confidencePct != null) doc.text(`Model confidence: ${confidencePct.toFixed(1)}%`, margin, y);
+    if (confidencePct != null)
+      doc.text(`Model confidence: ${confidencePct.toFixed(1)}%`, margin, y);
     y += 6;
 
     doc.text(`Risk level: ${risk}`, margin, y);
@@ -233,7 +309,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const img = rep.imageDataUrl || rep.thumbnail;
     if (img) {
       try {
-        // keep it modest so it doesn't overflow page
         doc.addImage(img, "JPEG", margin, y, 60, 60);
         y += 66;
       } catch (e) {
@@ -296,34 +371,23 @@ document.addEventListener("DOMContentLoaded", () => {
       doc.text("Prevention", margin, y);
       y += 5;
       doc.setFont("helvetica", "normal");
-
-      if (Array.isArray(prevention)) {
-        prevention.slice(0, 6).forEach((p) => {
-          y = addWrappedText(doc, `• ${p}`, margin, y, 180, 5);
-        });
-      } else {
-        y = addWrappedText(doc, prevention, margin, y, 180, 5);
-      }
+      y = addWrappedText(doc, prevention, margin, y, 180, 5);
       y += 5;
     }
 
-    // Model stats
+    // Footer small metrics
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.text("Model Stats", margin, y);
-    y += 6;
+    doc.setFontSize(11);
+    doc.text("Quality Metrics", margin, 285);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
-    doc.text(`Photo quality: ${qualityPct != null ? `${qualityPct.toFixed(0)}%` : "—"}`, margin, y);
-    y += 5;
-    doc.text(`Agreement: ${agreementPct != null ? `${agreementPct.toFixed(0)}%` : "—"}`, margin, y);
-
-    doc.setFontSize(9);
     doc.text(
-      "Disclaimer: This is an AI-assisted prediction. Confirm with field scouting or an agronomist before taking action.",
+      `Confidence: ${confidencePct != null ? confidencePct.toFixed(1) + "%" : "—"}   •   Photo quality: ${
+        qualityPct != null ? qualityPct.toFixed(1) + "%" : "—"
+      }   •   Agreement: ${agreementPct != null ? agreementPct.toFixed(1) + "%" : "—"}`,
       margin,
-      285
+      292
     );
 
     return doc;
@@ -333,8 +397,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const doc = makeDoc();
     if (!doc) return null;
 
-    const reports = getReports();
     const user = getUser();
+    const scans = getScans();
 
     const margin = 14;
     let y = 16;
@@ -348,117 +412,45 @@ document.addEventListener("DOMContentLoaded", () => {
     doc.setFontSize(10);
     doc.text(`Generated: ${formatDateTime(Date.now())}`, margin, y);
     y += 5;
-    doc.text(`User: ${cleanText(user?.name || user?.username || "Administrator")}`, margin, y);
-    y += 8;
-
-    if (!scans.length) {
-      doc.setFontSize(12);
-      doc.text("No reports yet. Run disease detection to generate history.", margin, y);
-      return doc;
-    }
-
-    const totalScans = reports.length;
-    const diseaseScans = reports.filter(
-      (r) => String(getDiseaseKey(r)).toLowerCase() !== "healthy_leaf"
-    ).length;
-
-    const byDisease = {};
-    reports.forEach((r) => {
-      const key = String(getDiseaseKey(r)).toLowerCase();
-      const name = cleanText(getDiseaseName(r));
-      const k = key === "healthy_leaf" ? "Healthy" : name;
-      byDisease[k] = (byDisease[k] || 0) + 1;
-    });
-
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.text("Summary", margin, y);
-    y += 6;
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(11);
-    doc.text(`Total scans: ${totalScans}`, margin, y); y += 6;
-    doc.text(`Diseases detected (non-healthy): ${diseaseScans}`, margin, y); y += 10;
-
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.text("Detections by Type", margin, y);
-    y += 6;
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    Object.entries(byDisease)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 10)
-      .forEach(([name, count]) => {
-        doc.text(`• ${name}: ${count}`, margin, y);
-        y += 5;
-      });
-
-    y += 8;
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.text("Recent Detections", margin, y);
-    y += 6;
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-
-    const recent = [...reports]
-      .sort((a, b) => (new Date(getTimestamp(b))) - (new Date(getTimestamp(a))))
-      .slice(0, 10);
-
-    recent.forEach((r) => {
-      const ts = formatDateTime(getTimestamp(r));
-      const name = cleanText(getDiseaseName(r));
-      const conf = normalizePercent(r.confidencePct ?? r.confidence);
-      const risk = riskLabel(r.risk || r.riskLevel);
-
-      y = addWrappedText(
-        doc,
-        `${ts} — ${name} — ${conf != null ? conf.toFixed(1) + "%" : "—%"} — ${risk} risk`,
-        margin,
-        y,
-        180,
-        5
-      );
-      y += 2;
-
-      if (y > 270) {
-        doc.addPage();
-        y = 16;
-      }
-    });
-
-    return doc;
-  };
-
-  const buildSatelliteInsightsPDF = () => {
-    const doc = makeDoc();
-    if (!doc) return null;
-
-    const margin = 14;
-    let y = 18;
-
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.text("AgriVision – Satellite Insights Report", margin, y);
+    doc.text(
+      `User: ${cleanText(user?.name || user?.username || "Administrator")}`,
+      margin,
+      y
+    );
     y += 10;
 
+    const diseased = scans.filter((s) => {
+      const key = String(s?.diseaseKey || s?.labelKey || s?.pred_label || "")
+        .toLowerCase()
+        .trim();
+      return key && key !== "healthy_leaf" && key !== "healthy";
+    });
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text("This Month Overview (from detections)", margin, y);
+    y += 6;
+
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(11);
+    doc.setFontSize(10);
+    doc.text(`Total scans: ${scans.length}`, margin, y);
+    y += 5;
+    doc.text(`Diseased detections: ${diseased.length}`, margin, y);
+    y += 8;
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Notes", margin, y);
+    y += 6;
+
+    doc.setFont("helvetica", "normal");
     y = addWrappedText(
       doc,
-      "Satellite Insights is a placeholder in this demo. Once NDVI/NDWI/SAVI data is connected, this report will include time-series graphs and zone-wise vegetation health analytics.",
+      "This summary is generated from recent AI detections on uploaded leaf images. For full field health, combine with satellite indices and on-ground scouting.",
       margin,
       y,
       180,
-      6
+      5
     );
-
-    y += 10;
-    doc.setFontSize(10);
-    doc.text(`Generated: ${formatDateTime(Date.now())}`, margin, y);
 
     return doc;
   };
@@ -467,219 +459,362 @@ document.addEventListener("DOMContentLoaded", () => {
     const doc = makeDoc();
     if (!doc) return null;
 
-    const reports = getReports(); // disease-only reports
-    const scans = getScans();     // ✅ ALL scans (healthy + diseased)
-    const user = getUser();
-
     const margin = 14;
     let y = 16;
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
     doc.text("AgriVision – AI Model Report", margin, y);
+    y += 10;
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+    y = addWrappedText(
+      doc,
+      "This section can include model training stats, dataset size, class distribution, and Grad-CAM explainability visuals. (Placeholder for now.)",
+      margin,
+      y,
+      180,
+      6
+    );
+
+    return doc;
+  };
+
+  // ✅ FIXED: Satellite Insights now includes NDVI + NDMI + EVI trends
+  const buildSatelliteInsightsPDF = async () => {
+    const doc = makeDoc();
+    if (!doc) return null;
+
+    const margin = 14;
+    let y = 16;
+
+    const runs = getSatReports();
+    const user = getUser();
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text("AgriVision – Satellite Insights Report", margin, y);
     y += 8;
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     doc.text(`Generated: ${formatDateTime(Date.now())}`, margin, y);
     y += 5;
-    doc.text(`User: ${cleanText(user?.name || user?.username || "Administrator")}`, margin, y);
-    y += 8;
+    doc.text(
+      `User: ${cleanText(user?.name || user?.username || "Administrator")}`,
+      margin,
+      y
+    );
+    y += 10;
 
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.text("Model Summary", margin, y);
-    y += 6;
-
-    const modelSummaryText =
-      "The AgriVision disease detection system is built using a Convolutional Neural Network (CNN) trained on a curated dataset of cotton leaf images representing both healthy plants and multiple disease conditions. The training data includes real field images captured under varying lighting, backgrounds, and growth stages, allowing the model to learn robust visual patterns such as color changes, texture irregularities, vein distortion, and lesion formation. During inference, an uploaded leaf image is first pre-processed through resizing and normalization before being passed into the trained model, which outputs the most probable disease class along with a confidence score. To improve reliability and practical usability, AgriVision combines the model’s confidence with image quality analysis and prediction agreement metrics, enabling the system to generate risk-aware insights and actionable recommendations rather than a single raw prediction.";
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    y = addWrappedText(doc, modelSummaryText, margin, y, 180, 5);
-    y += 6;
-
-    if (!reports.length) {
-      doc.setFontSize(11);
-      doc.text("No detection history found. Run detections to generate model analytics.", margin, y);
+    if (!runs.length) {
+      doc.setFontSize(12);
+      doc.text(
+        "No satellite runs found. Go to Farm Monitoring and click Update Now first.",
+        margin,
+        y
+      );
       return doc;
     }
 
-    // Compute stats from history
-    const total = scans.length;
-    const nonHealthy = reports.length; // because reports already excludes healthy
-
-
-    const avg = (arr) => {
-      const nums = arr.filter((x) => Number.isFinite(x));
-      if (!nums.length) return null;
-      return nums.reduce((a, b) => a + b, 0) / nums.length;
-    };
-
-    const confs = reports
-      .map((r) => normalizePercent(r.confidencePct ?? r.confidence))
-      .filter((x) => x != null);
-
-    const quals = reports
-      .map((r) => normalizePercent(r.qualityPct ?? r.photoQuality))
-      .filter((x) => x != null);
-
-    const agrees = reports
-      .map((r) => normalizePercent(r.agreementPct ?? r.agreement))
-      .filter((x) => x != null);
-
-    const avgConf = avg(confs);
-    const avgQual = avg(quals);
-    const avgAgree = avg(agrees);
-
-    const counts = {};
-    reports.forEach((r) => {
-      const name = cleanText(getDiseaseName(r));
-      counts[name] = (counts[name] || 0) + 1;
+    // Latest per farm
+    const latestByFarm = {};
+    runs.forEach((r) => {
+      const fid = r.farmId || r.farm_id || r.farm || null;
+      if (!fid) return;
+      const cur = latestByFarm[fid];
+      const t = new Date(r.createdAt || r.timestamp || r.ts || 0).getTime();
+      const tc = cur
+        ? new Date(cur.createdAt || cur.timestamp || cur.ts || 0).getTime()
+        : -1;
+      if (!cur || t > tc) latestByFarm[fid] = r;
     });
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
-    doc.text("Session Analytics", margin, y);
+    doc.text("Latest Status by Farm", margin, y);
     y += 6;
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
-    doc.text(`Total scans: ${total}`, margin, y); y += 5;
-    doc.text(`Non-healthy detections: ${nonHealthy}`, margin, y); y += 5;
-    doc.text(`Avg confidence: ${avgConf != null ? avgConf.toFixed(1) + "%" : "—"}`, margin, y); y += 5;
-    doc.text(`Avg photo quality: ${avgQual != null ? avgQual.toFixed(0) + "%" : "—"}`, margin, y); y += 5;
-    doc.text(`Avg agreement: ${avgAgree != null ? avgAgree.toFixed(0) + "%" : "—"}`, margin, y);
-    y += 8;
 
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.text("Detections by Label", margin, y);
-    y += 6;
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    Object.entries(counts)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 10)
-      .forEach(([name, c]) => {
-        doc.text(`• ${name}: ${c}`, margin, y);
+    Object.values(latestByFarm)
+      .slice(0, 12)
+      .forEach((r) => {
+        const farm = cleanText(r.farmName || "Farm");
+        const ndvi = r.summary?.ndvi ?? r.summary?.mean;
+        const ndmi = r.summary?.ndmi;
+        const evi = r.summary?.evi;
+        const label = cleanText(r.health?.label || "—");
+        const date = String(r.createdAt || r.timestamp || r.ts || "").slice(0, 10);
+        doc.text(
+          `• ${farm} (${date}) — ${label} — NDVI ${fmt(ndvi)} / NDMI ${fmt(
+            ndmi
+          )} / EVI ${fmt(evi)}`,
+          margin,
+          y
+        );
         y += 5;
+        if (y > 270) {
+          doc.addPage();
+          y = 16;
+        }
       });
 
-    y += 8;
+    // Overall trends across all runs (by run date)
+    const sorted = [...runs].sort((a, b) => {
+      const ta = new Date(a.createdAt || a.timestamp || a.ts || 0).getTime();
+      const tb = new Date(b.createdAt || b.timestamp || b.ts || 0).getTime();
+      return ta - tb;
+    });
 
-    // Recent Predictions (with images)
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.text("Recent Predictions (latest 10)", margin, y);
-    y += 6;
+    const labels = sorted.map((r) =>
+      String(r.createdAt || r.timestamp || r.ts || "").slice(0, 10)
+    );
 
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
+    const ndviSeries = sorted.map((r) => {
+      const v = r.summary?.ndvi ?? r.summary?.mean;
+      return v == null ? null : Number(v);
+    });
 
-    const recent = [...reports]
-      .sort((a, b) => (new Date(getTimestamp(b))) - (new Date(getTimestamp(a))))
-      .slice(0, 10);
+    const ndmiSeries = sorted.map((r) => {
+      const v = r.summary?.ndmi;
+      return v == null ? null : Number(v);
+    });
 
-    recent.forEach((r) => {
-      if (y > 260) {
+    const eviSeries = sorted.map((r) => {
+      const v = r.summary?.evi;
+      return v == null ? null : Number(v);
+    });
+
+    const addTrendChart = async (title, series) => {
+      if (!labels.length) return;
+      if (y > 210) {
         doc.addPage();
         y = 16;
       }
 
-      const ts = formatDateTime(getTimestamp(r));
-      const name = cleanText(getDiseaseName(r));
-      const conf = normalizePercent(r.confidencePct ?? r.confidence);
-      const risk = riskLabel(r.risk || r.riskLevel);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(12);
+      doc.text(title, margin, y);
+      y += 6;
 
-      const img = r.imageDataUrl || r.thumbnail;
+      const img = await makeLineChartImage({
+        labels,
+        series,
+        title,
+      });
 
-      // Image (left)
       if (img) {
         try {
-          doc.addImage(img, "JPEG", margin, y, 34, 34);
+          doc.addImage(img, "JPEG", margin, y, 182, 72);
+          y += 78;
         } catch (e) {
-          console.warn("Could not add scan image in AI report", e);
+          console.warn("Could not add chart image", e);
         }
+      } else {
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.text("Chart unavailable (Chart.js missing).", margin, y);
+        y += 8;
       }
+    };
 
-      // Text (right)
-      const textX = margin + 40;
-      doc.text(`${ts}`, textX, y + 6);
-      doc.text(`${name}`, textX, y + 12);
-      doc.text(
-        `Confidence: ${conf != null ? conf.toFixed(1) + "%" : "—"} | Risk: ${risk}`,
-        textX,
-        y + 18
-      );
-
-      y += 40;
-    });
+    await addTrendChart("Overall NDVI Trend (all runs)", ndviSeries);
+    await addTrendChart("Overall NDMI Trend (all runs)", ndmiSeries);
+    await addTrendChart("Overall EVI Trend (all runs)", eviSeries);
 
     return doc;
   };
 
   // -----------------------
-  // History UI Rendering
+  // Render History Lists
   // -----------------------
-  const setEmptyState = (isEmpty) => {
-    if (!emptyEl || !historyListEl) return;
-    if (isEmpty) {
-      emptyEl.classList.remove("is-hidden");
-      historyListEl.classList.add("is-hidden");
-    } else {
-      emptyEl.classList.add("is-hidden");
-      historyListEl.classList.remove("is-hidden");
-    }
-  };
-
-  const makeHistoryRow = (rep, idx) => {
-    const ts = getTimestamp(rep);
-    const title = cleanText(getDiseaseName(rep));
-    const sub = `Detected on ${formatDateTime(ts)} • Risk: ${riskLabel(rep.risk || rep.riskLevel)}`;
-
-    const row = document.createElement("div");
-    row.className = "rep-item";
-
-    const imgSrc = rep.thumbnail || rep.imageDataUrl || "";
-
-    row.innerHTML = `
-      <div class="rep-item-left">
-        ${imgSrc ? `<img class="rep-thumb" src="${imgSrc}" alt="Leaf scan">` : ""}
-        <div class="rep-item-text">
-          <div class="rep-item-title">${title}</div>
-          <div class="rep-item-sub">${sub}</div>
-        </div>
-      </div>
-
-      <div class="rep-item-right">
-        <div class="rep-format">PDF</div>
-        <button class="rep-edit-btn" data-action="download" data-idx="${idx}" type="button">Download</button>
-        <button class="rep-edit-btn" data-action="print" data-idx="${idx}" type="button">Print</button>
-      </div>
-    `;
-
-    return row;
-  };
-
-  const renderHistory = () => {
-    const reports = getReports();
-    if (!historyListEl) return;
-
-    historyListEl.innerHTML = "";
-    setEmptyState(reports.length === 0);
-
-    const sorted = [...reports].sort(
-      (a, b) => (new Date(getTimestamp(b))) - (new Date(getTimestamp(a)))
+  const renderDiseaseHistory = () => {
+    const reps = getReports().sort(
+      (a, b) => new Date(getTimestamp(b)) - new Date(getTimestamp(a))
     );
 
-    sorted.forEach((rep, idx) => {
-      historyListEl.appendChild(makeHistoryRow(rep, idx));
+    if (!historyListEl || !emptyEl) return;
+
+    historyListEl.innerHTML = "";
+
+    if (!reps.length) {
+      emptyEl.classList.remove("is-hidden");
+      return;
+    }
+    emptyEl.classList.add("is-hidden");
+
+    reps.slice(0, 30).forEach((rep, idx) => {
+      const disease = cleanText(getDiseaseName(rep));
+      const ts = formatDateTime(getTimestamp(rep));
+      const risk = riskLabel(rep.risk || rep.riskLevel || rep.risk_level);
+
+      const row = document.createElement("div");
+      row.className = "rep-item";
+      row.innerHTML = `
+        <div class="rep-item-left">
+          <div class="rep-item-text">
+            <div class="rep-item-title">${disease}</div>
+            <div class="rep-item-sub">${ts} • Risk: ${risk}</div>
+          </div>
+        </div>
+        <div class="rep-item-right">
+          <div class="rep-format">PDF</div>
+          <button class="rep-edit-btn" type="button" data-action="download" data-idx="${idx}">Download</button>
+          <button class="rep-edit-btn" type="button" data-action="print" data-idx="${idx}">Print</button>
+        </div>
+      `;
+      historyListEl.appendChild(row);
     });
   };
 
-  // Delegate clicks for Download/Print
+  const renderSatHistory = () => {
+    const reps = getSatReports().sort((a, b) => {
+      const ta = new Date(a.createdAt || a.timestamp || a.ts || 0).getTime();
+      const tb = new Date(b.createdAt || b.timestamp || b.ts || 0).getTime();
+      return tb - ta;
+    });
+
+    if (!satHistoryListEl || !satEmptyEl) return;
+
+    satHistoryListEl.innerHTML = "";
+
+    if (!reps.length) {
+      satEmptyEl.classList.remove("is-hidden");
+      return;
+    }
+    satEmptyEl.classList.add("is-hidden");
+
+    reps.slice(0, 30).forEach((rep, idx) => {
+      const farm = cleanText(rep.farmName || "Farm");
+      const date = String(rep.createdAt || rep.timestamp || rep.ts || "").slice(0, 10);
+      const ndvi = rep.summary?.ndvi ?? rep.summary?.mean;
+      const ndmi = rep.summary?.ndmi;
+      const evi = rep.summary?.evi;
+
+      const row = document.createElement("div");
+      row.className = "rep-item";
+      row.innerHTML = `
+        <div class="rep-item-left">
+          <div class="rep-item-text">
+            <div class="rep-item-title">${farm}</div>
+            <div class="rep-item-sub">${date} • NDVI ${fmt(ndvi)} / NDMI ${fmt(ndmi)} / EVI ${fmt(evi)}</div>
+          </div>
+        </div>
+        <div class="rep-item-right">
+          <div class="rep-format">PDF</div>
+          <button class="rep-edit-btn" type="button" data-action="download" data-idx="${idx}">Download</button>
+          <button class="rep-edit-btn" type="button" data-action="print" data-idx="${idx}">Print</button>
+        </div>
+      `;
+      satHistoryListEl.appendChild(row);
+    });
+  };
+
+  // -----------------------
+  // Build Satellite Run PDF (single run)
+  // -----------------------
+  const buildSatelliteRunPDF = async (rep) => {
+    const doc = makeDoc();
+    if (!doc) return null;
+
+    const margin = 14;
+    let y = 16;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text("AgriVision – Satellite Run Report", margin, y);
+    y += 8;
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text(`Generated: ${formatDateTime(Date.now())}`, margin, y);
+    y += 5;
+    doc.text(`Run time: ${formatDateTime(rep.createdAt || rep.timestamp || rep.ts)}`, margin, y);
+    y += 8;
+
+    const farm = cleanText(rep.farmName || "Farm");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text(`Farm: ${farm}`, margin, y);
+    y += 7;
+
+    const ndvi = rep.summary?.ndvi ?? rep.summary?.mean;
+    const ndmi = rep.summary?.ndmi;
+    const evi = rep.summary?.evi;
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+    doc.text(`NDVI: ${fmt(ndvi)}   NDMI: ${fmt(ndmi)}   EVI: ${fmt(evi)}`, margin, y);
+    y += 10;
+
+    // Trend chart if timeseries exists
+    const rows = Array.isArray(rep.timeseries) ? rep.timeseries : [];
+    const labels = rows.map((r) => String(r.date || r.ts || "").slice(0, 10));
+    const ndviSeries = rows.map((r) => (r.ndvi == null ? null : Number(r.ndvi)));
+    const ndmiSeries = rows.map((r) => (r.ndmi == null ? null : Number(r.ndmi)));
+    const eviSeries = rows.map((r) => (r.evi == null ? null : Number(r.evi)));
+
+    const addSeries = async (title, series) => {
+      if (!labels.length) return;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(12);
+      doc.text(title, margin, y);
+      y += 6;
+
+      const img = await makeLineChartImage({ labels, series, title });
+      if (img) {
+        doc.addImage(img, "JPEG", margin, y, 182, 72);
+        y += 78;
+      } else {
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.text("Chart unavailable (Chart.js missing).", margin, y);
+        y += 8;
+      }
+    };
+
+    await addSeries("NDVI Trend", ndviSeries);
+    await addSeries("NDMI Trend", ndmiSeries);
+    await addSeries("EVI Trend", eviSeries);
+
+    return doc;
+  };
+
+  // -----------------------
+  // Delegated click handlers
+  // -----------------------
+  // Delegate clicks for Satellite Download/Print
+  satHistoryListEl?.addEventListener("click", async (e) => {
+    const btn = e.target.closest("button[data-action]");
+    if (!btn) return;
+
+    const action = btn.getAttribute("data-action");
+    const idx = Number(btn.getAttribute("data-idx"));
+
+    const sorted = [...getSatReports()].sort((a, b) => {
+      const ta = new Date(a.createdAt || a.timestamp || a.ts || 0).getTime();
+      const tb = new Date(b.createdAt || b.timestamp || b.ts || 0).getTime();
+      return tb - ta;
+    });
+
+    const rep = sorted[idx];
+    if (!rep) return;
+
+    const farm = cleanText(rep.farmName || "Farm").replace(/\s+/g, "_");
+    const end = cleanText(rep.end_date || new Date().toISOString().slice(0, 10));
+    const filename = `AgriVision_Satellite_${farm}_${end}.pdf`;
+
+    const doc = await buildSatelliteRunPDF(rep);
+    if (!doc) return;
+
+    if (action === "download") downloadDoc(doc, filename);
+    if (action === "print") printDoc(doc);
+  });
+
+  // Delegate clicks for Disease Download/Print
   historyListEl?.addEventListener("click", (e) => {
     const btn = e.target.closest("button[data-action]");
     if (!btn) return;
@@ -688,13 +823,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const idx = Number(btn.getAttribute("data-idx"));
 
     const sorted = [...getReports()].sort(
-      (a, b) => (new Date(getTimestamp(b))) - (new Date(getTimestamp(a)))
+      (a, b) => new Date(getTimestamp(b)) - new Date(getTimestamp(a))
     );
     const rep = sorted[idx];
     if (!rep) return;
 
     const disease = cleanText(getDiseaseName(rep)).replace(/\s+/g, "_");
-    const filename = `AgriVision_${disease}_${new Date(getTimestamp(rep)).toISOString().slice(0, 10)}.pdf`;
+    const filename = `AgriVision_${disease}_${new Date(getTimestamp(rep))
+      .toISOString()
+      .slice(0, 10)}.pdf`;
 
     const doc = buildSingleDetectionPDF(rep);
     if (!doc) return;
@@ -724,27 +861,33 @@ document.addEventListener("DOMContentLoaded", () => {
   cropBtn?.addEventListener("click", () => {
     const doc = buildCropHealthSummaryPDF();
     if (!doc) return;
-    downloadDoc(doc, `AgriVision_Crop_Health_Summary_${new Date().toISOString().slice(0, 10)}.pdf`);
+    downloadDoc(
+      doc,
+      `AgriVision_Crop_Health_Summary_${new Date().toISOString().slice(0, 10)}.pdf`
+    );
   });
 
-  satBtn?.addEventListener("click", () => {
-    const doc = buildSatelliteInsightsPDF();
+  satBtn?.addEventListener("click", async () => {
+    const doc = await buildSatelliteInsightsPDF();
     if (!doc) return;
-    downloadDoc(doc, `AgriVision_Satellite_Insights_${new Date().toISOString().slice(0, 10)}.pdf`);
+    downloadDoc(
+      doc,
+      `AgriVision_Satellite_Insights_${new Date().toISOString().slice(0, 10)}.pdf`
+    );
   });
 
   aiBtn?.addEventListener("click", () => {
     const doc = buildAIModelReportPDF();
     if (!doc) return;
-    downloadDoc(doc, `AgriVision_AI_Model_Report_${new Date().toISOString().slice(0, 10)}.pdf`);
+    downloadDoc(
+      doc,
+      `AgriVision_AI_Model_Report_${new Date().toISOString().slice(0, 10)}.pdf`
+    );
   });
 
   // -----------------------
-  // Initial render
+  // Init render
   // -----------------------
-  renderHistory();
-  window.addEventListener("focus", renderHistory);
-
-  // (Optional) expose clear-all helper for demo
-  // window.clearReports = () => { saveReports([]); renderHistory(); };
+  renderDiseaseHistory();
+  renderSatHistory();
 });

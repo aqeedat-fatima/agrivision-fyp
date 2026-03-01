@@ -1,3 +1,4 @@
+
 // assets/js/dashboard.js
 document.addEventListener("DOMContentLoaded", () => {
   const uploadCard = document.getElementById("uploadCard");
@@ -112,7 +113,10 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const setReports = (arr) =>
-    localStorage.setItem(REPORTS_KEY, JSON.stringify(Array.isArray(arr) ? arr : []));
+    localStorage.setItem(
+      REPORTS_KEY,
+      JSON.stringify(Array.isArray(arr) ? arr : [])
+    );
 
   const addReport = (report) => {
     const reports = getReports();
@@ -129,13 +133,178 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const setScans = (arr) =>
-    localStorage.setItem(SCANS_KEY, JSON.stringify(Array.isArray(arr) ? arr : []));
+    localStorage.setItem(
+      SCANS_KEY,
+      JSON.stringify(Array.isArray(arr) ? arr : [])
+    );
 
   const addScan = (scan) => {
     const scans = getScans();
     scans.unshift(scan);
     setScans(scans);
   };
+
+  // =====================
+  // DASHBOARD KPI: Farms + Satellite
+  // =====================
+  const FARMS_KEY = "agrivision_farms";
+
+  const getFarms = () => {
+    try {
+      return JSON.parse(localStorage.getItem(FARMS_KEY) || "[]");
+    } catch {
+      return [];
+    }
+  };
+
+  // Satellite runs (for KPI fallback if farms don't have lastRun saved yet)
+  const SAT_RUNS_KEY = "agrivision_satellite_runs";
+  const SAT_REPORTS_KEY = "agrivision_satellite_reports"; // legacy
+
+  const safeJSON = (raw, fallback) => {
+    try {
+      const p = JSON.parse(raw);
+      return p ?? fallback;
+    } catch {
+      return fallback;
+    }
+  };
+
+  const getSatRuns = () => {
+    const a = safeJSON(localStorage.getItem(SAT_RUNS_KEY), []);
+    const b = safeJSON(localStorage.getItem(SAT_REPORTS_KEY), []);
+    const merged = [
+      ...(Array.isArray(a) ? a : []),
+      ...(Array.isArray(b) ? b : []),
+    ];
+
+    // de-dupe by id if present
+    const seen = new Set();
+    const out = [];
+    for (const r of merged) {
+      const id = r?.id || null;
+      if (id) {
+        if (seen.has(id)) continue;
+        seen.add(id);
+      }
+      out.push(r);
+    }
+
+    // newest first
+    out.sort((x, y) => {
+      const tx = new Date(x.createdAt || x.timestamp || x.ts || 0).getTime();
+      const ty = new Date(y.createdAt || y.timestamp || y.ts || 0).getTime();
+      return ty - tx;
+    });
+
+    return out;
+  };
+
+  const getLatestSatRunForFarm = (farmId) => {
+    if (!farmId) return null;
+    return (
+      getSatRuns().find((r) => (r?.farmId || r?.farm_id) === farmId) || null
+    );
+  };
+
+  const toNum = (v) => {
+    if (v === null || v === undefined) return null;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+  };
+
+  const extractNdvi = (run) => {
+    if (!run) return null;
+    const s = run.summary || {};
+    return toNum(s.ndvi ?? s.mean ?? s.mean_ndvi ?? s.meanNdvi);
+  };
+
+  const extractNdmi = (run) => {
+    if (!run) return null;
+    const s = run.summary || {};
+    return toNum(s.ndmi ?? s.mean_ndmi ?? s.meanNdmi);
+  };
+
+  const extractChangePct = (run) => {
+    const c = run?.change || {};
+    return toNum(c.ndvi_change_pct ?? c.ndviChangePct ?? c.ndvi_change);
+  };
+
+  const extractHealthLevel = (run) => {
+    return run?.health?.level || null;
+  };
+
+  const computeFarmKPIs = () => {
+    const farms = getFarms();
+
+    // Fields monitored
+    const fieldsCount = farms.length;
+
+    // Avg NDVI (prefer farm.lastRun; fallback to latest satellite run for that farm)
+    const ndvis = farms
+      .map((f) => {
+        const fromFarm = extractNdvi(f?.lastRun);
+        if (fromFarm != null) return fromFarm;
+
+        const latest = getLatestSatRunForFarm(f?.id);
+        return extractNdvi(latest);
+      })
+      .map(toNum)
+      .filter((v) => Number.isFinite(v));
+
+    const avgNdvi = ndvis.length
+      ? ndvis.reduce((a, b) => a + b, 0) / ndvis.length
+      : null;
+
+    // Active alerts: stressed OR big NDVI drop OR moisture stress
+    const alerts = farms.filter((f) => {
+      const run = f?.lastRun || getLatestSatRunForFarm(f?.id) || null;
+
+      const h = extractHealthLevel(run); // good/warn/bad
+      const ch = extractChangePct(run);
+      const ndmi = extractNdmi(run);
+
+      const stressed = h === "bad";
+      const bigDrop = ch != null ? ch <= -10 : false;
+      const moistureStress = ndmi != null ? ndmi <= -0.1 : false;
+
+      return stressed || bigDrop || moistureStress;
+    }).length;
+
+    return { fieldsCount, avgNdvi, alerts };
+  };
+
+  const renderFarmKPIs = () => {
+    const { fieldsCount, avgNdvi, alerts } = computeFarmKPIs();
+
+    const elFields = document.getElementById("kpiFieldsMonitored");
+    const elAvgNdvi = document.getElementById("kpiAvgNdvi");
+    const elAlerts = document.getElementById("kpiActiveAlerts");
+
+    if (elFields) elFields.textContent = String(fieldsCount);
+    if (elAvgNdvi)
+      elAvgNdvi.textContent = avgNdvi == null ? "—" : avgNdvi.toFixed(2);
+    if (elAlerts) elAlerts.textContent = String(alerts);
+  };
+
+  // Make KPI cards clickable (navigate to farm monitor)
+  const wireKpiNav = () => {
+    document.getElementById("cardFields")?.addEventListener("click", () => {
+      window.location.href = "farm-monitor.html";
+    });
+    document.getElementById("cardAvgNdvi")?.addEventListener("click", () => {
+      window.location.href = "farm-monitor.html";
+    });
+    document.getElementById("cardAlerts")?.addEventListener("click", () => {
+      window.location.href = "farm-monitor.html";
+    });
+  };
+
+  renderFarmKPIs();
+  wireKpiNav();
+
+  // Refresh when returning from farm monitor
+  window.addEventListener("focus", renderFarmKPIs);
 
   // ==========================================================
   // MoM logic (based on scans history)
@@ -172,7 +341,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const prevCount = countDiseasedInMonth(scans, prevYear, prevMonth);
 
     if (prevCount === 0 && thisCount === 0) return { text: "0% MoM", cls: "" };
-    if (prevCount === 0 && thisCount > 0) return { text: "New MoM", cls: "kpi-change-up" };
+    if (prevCount === 0 && thisCount > 0)
+      return { text: "New MoM", cls: "kpi-change-up" };
 
     const pct = ((thisCount - prevCount) / prevCount) * 100;
     const rounded = Math.round(pct);
@@ -186,7 +356,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!kpiDiseasesMoMValueEl) return;
     const { text, cls } = computeMoMDiseaseDetections();
     kpiDiseasesMoMValueEl.textContent = text;
-    kpiDiseasesMoMValueEl.classList.remove("kpi-change-up", "kpi-change-down");
+    kpiDiseasesMoMValueEl.classList.remove(
+      "kpi-change-up",
+      "kpi-change-down"
+    );
     if (cls) kpiDiseasesMoMValueEl.classList.add(cls);
   };
 
@@ -257,17 +430,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     herbicide_growth_damage: "herbicide_growth_damage",
     "herbicide growth damage": "herbicide_growth_damage",
-    "herbicide damage": "herbicide_growth_damage",
-
-    leaf_hopper_jassids: "leaf_hopper_jassids",
-    "leaf hopper jassids": "leaf_hopper_jassids",
-    jassids: "leaf_hopper_jassids",
-    jassid: "leaf_hopper_jassids",
-
-    leaf_variegation: "leaf_variegation",
-    "leaf variegation": "leaf_variegation",
-    variegation: "leaf_variegation",
   };
+
 
   // --------------------------
   // LEFT PANEL (Plantix-style LONG content)
