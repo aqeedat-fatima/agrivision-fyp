@@ -1,0 +1,127 @@
+:root{
+  --green:#7FA34A;
+  --green-dark:#6b8c3f;
+  --light:#f7f9f4;
+  --border:#e5e9df;
+  --text:#1e293b;
+  --muted:#6b7280;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background:#ffffff;
+  color:var(--text);
+}
+
+.auth-wrapper{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:40px 20px;
+  background:var(--light);
+}
+
+.auth-card{
+  width:480px;              /* bigger */
+  background:#fff;
+  padding:40px 36px;
+  border-radius:18px;
+  box-shadow:0 20px 50px rgba(0,0,0,0.08);
+}
+
+.auth-title{
+  margin:0;
+  font-size:28px;
+  color:var(--green-dark);
+  letter-spacing:0.5px;
+}
+
+.auth-sub{
+  margin:6px 0 28px;
+  font-size:14px;
+  color:var(--muted);
+}
+
+.input-group{
+  margin-bottom:20px;
+}
+
+.input-group label{
+  font-size:13px;
+  font-weight:600;
+  display:block;
+  margin-bottom:6px;
+}
+
+input{
+  width:100%;
+  padding:14px 14px;
+  border-radius:30px;
+  border:1px solid var(--border);
+  font-size:14px;
+  outline:none;
+  transition:0.2s;
+}
+
+input:focus{
+  border-color:var(--green);
+  box-shadow:0 0 0 3px rgba(127,163,74,0.2);
+}
+
+.password-wrap{
+  position:relative;
+}
+
+.password-wrap button{
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  border:none;
+  background:transparent;
+  cursor:pointer;
+  font-size:16px;
+}
+
+small{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:6px;
+  display:block;
+}
+
+.btn-primary{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:30px;
+  background:var(--green);
+  color:#fff;
+  font-weight:600;
+  font-size:15px;
+  cursor:pointer;
+  transition:0.2s;
+  margin-top:8px;
+}
+
+.btn-primary:hover{
+  background:var(--green-dark);
+}
+
+.auth-link{
+  margin-top:22px;
+  text-align:center;
+  font-size:14px;
+}
+
+.auth-link a{
+  color:var(--green-dark);
+  text-decoration:none;
+  font-weight:600;
+}

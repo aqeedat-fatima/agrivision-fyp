@@ -5,46 +5,63 @@ const passwordInput = document.getElementById("password");
 const toggleBtn = document.getElementById("togglePassword");
 const eyeIcon = document.getElementById("eyeIcon");
 
-let isVisible = false; // starts hidden
+let isVisible = false;
 
 toggleBtn.addEventListener("click", () => {
     isVisible = !isVisible;
 
     if (isVisible) {
-        // SHOW PASSWORD
         passwordInput.type = "text";
         passwordInput.classList.remove("hidden-password");
         passwordInput.classList.add("visible-password");
-
-        // switch to normal eye icon
         eyeIcon.src = "assets/icons/eye.png";
         toggleBtn.setAttribute("aria-label", "Hide password");
     } else {
-        // HIDE PASSWORD
         passwordInput.type = "password";
         passwordInput.classList.remove("visible-password");
         passwordInput.classList.add("hidden-password");
-
-        // switch to eye-slash icon
         eyeIcon.src = "assets/icons/eye-slash.png";
         toggleBtn.setAttribute("aria-label", "Show password");
     }
 });
 
+
 // ===============================
-// TEMP Login Handler (demo only)
+// REAL Backend Login Handler
 // ===============================
-document.getElementById("loginForm").addEventListener("submit", function (e) {
+const API = "http://127.0.0.1:8001";
+
+document.getElementById("loginForm").addEventListener("submit", async function (e) {
     e.preventDefault();
 
     const emailVal = document.getElementById("email").value.trim();
     const passVal = passwordInput.value.trim();
 
-    // Temporary login credentials
-    if (emailVal === "admin@gmail.com" && passVal === "1234") {
-        //alert("Login successful!");
-        window.location.href = "dashboard.html"; 
-    } else {
-        alert("Invalid credentials. Try admin@gmail.com / 1234");
+    try {
+        const res = await fetch(`${API}/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                email: emailVal,
+                password: passVal
+            })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            alert(data.detail || "Login failed");
+            return;
+        }
+
+        // ✅ Store logged-in user session
+        localStorage.setItem("agrivision_user", JSON.stringify(data));
+
+        // Redirect to dashboard
+        window.location.href = "dashboard.html";
+
+    } catch (err) {
+        alert("Server error. Is backend running?");
+        console.error(err);
     }
 });

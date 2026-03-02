@@ -1,30 +1,55 @@
 // assets/js/farm-monitor.js
-document.addEventListener("DOMContentLoaded", () => {
-  const API_BASE = "http://localhost:8000";
+document.addEventListener("DOMContentLoaded", async () => {
+  // ===============================
+  // 🔐 AUTH HELPERS
+  // ===============================
+  function getSessionUser() {
+    try {
+      return JSON.parse(localStorage.getItem("agrivision_user") || "null");
+    } catch {
+      return null;
+    }
+  }
 
-  // ===== Storage Keys =====
-  const FARMS_KEY = "agrivision_farms";                 // [{id,name,geometry,createdAt,updatedAt}]
-  const SAT_RUNS_KEY = "agrivision_satellite_runs";     // new
-  const SAT_REPORTS_KEY = "agrivision_satellite_reports"; // legacy (some reports.js versions read this)
-  const ACTIVE_FARM_KEY = "agrivision_active_farm_id";  // last selected farm
+  function requireUser() {
+    const u = getSessionUser();
+    if (!u?.id) {
+      window.location.href = "login.html";
+    }
+    return u;
+  }
+
+  function authHeaders() {
+    const u = requireUser();
+    return { "X-User-Id": String(u.id) };
+  }
+
+  function authHeadersJson() {
+    const u = requireUser();
+    return {
+      "Content-Type": "application/json",
+      "X-User-Id": String(u.id),
+    };
+  }
+
+  // ⬇️ immediately force login
+  const USER = requireUser();
+
+  // ✅ show logged-in user name in top-right
+  const profileNameEl = document.getElementById("profileName");
+  if (profileNameEl) {
+    profileNameEl.textContent =
+      USER.full_name || USER.fullName || USER.name || USER.email || "Profile";
+  }
+
+  const API_BASE = "http://localhost:8001";
+
+  // ✅ Keep only UI preference in localStorage
+  const ACTIVE_FARM_KEY = "agrivision_active_farm_id";
 
   // ===== Utils =====
-  function uuid() {
-    return (
-      window.crypto?.randomUUID?.() ||
-      `id_${Date.now()}_${Math.random().toString(16).slice(2)}`
-    );
-  }
   function isoDate(d) {
     return d.toISOString().slice(0, 10);
-  }
-  function safeJSON(raw, fallback) {
-    try {
-      const p = JSON.parse(raw);
-      return p ?? fallback;
-    } catch {
-      return fallback;
-    }
   }
   function fmt(v, digits = 2) {
     if (v === null || v === undefined || Number.isNaN(v)) return "—";
@@ -45,7 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const elKpiNdmi = document.getElementById("kpiNdmi");
   const elKpiEvi = document.getElementById("kpiEvi");
   const elKpiCloud = document.getElementById("kpiCloud");
-  const elKpiScene = document.getElementById("kpiScene"); // ✅ matches your HTML
+  const elKpiScene = document.getElementById("kpiScene");
 
   const elAdvice = document.getElementById("adviceList");
   const elBadge = document.getElementById("healthBadge");
@@ -77,12 +102,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ===== Leaflet Map (init safely) =====
-  // If map container has 0 height for any reason, give it a fallback
   if (elMap && elMap.getBoundingClientRect().height < 50) {
     elMap.style.minHeight = "540px";
   }
 
-  // ✅ preferCanvas:false => Leaflet Draw selection/editing is more reliable
   const map = L.map("map", { preferCanvas: false }).setView(
     [33.6844, 73.0479],
     12
@@ -110,12 +133,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let overlayLayer = null;
   let trendChart = null;
-  let currentTrendKey = "ndvi"; // ndvi | ndmi | evi
-  let lastFetchedRun = null; // most recent data shown in UI (even if not saved)
+  let currentTrendKey = "ndvi";
+  let lastFetchedRun = null;
 
-  // ✅ IMPORTANT: force Leaflet to recalc size after layout settles
   function fixMapSize() {
-    // multiple passes helps in flex/grid layouts
     setTimeout(() => map.invalidateSize(true), 50);
     setTimeout(() => map.invalidateSize(true), 250);
     setTimeout(() => map.invalidateSize(true), 600);
@@ -134,7 +155,6 @@ document.addEventListener("DOMContentLoaded", () => {
         : level === "bad"
         ? "fm-bad"
         : "fm-unknown";
-
     elBadge.className = "fm-badge " + css;
     elBadge.textContent = text || "Unknown";
   }
@@ -173,7 +193,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const layer = L.geoJSON({ type: "Feature", properties: {}, geometry: geom });
     layer.eachLayer((l) => drawnItems.addLayer(l));
 
-    // Fit bounds
     try {
       const b = layer.getBounds();
       if (b && b.isValid()) map.fitBounds(b.pad(0.15));
@@ -181,55 +200,79 @@ document.addEventListener("DOMContentLoaded", () => {
     fixMapSize();
   }
 
-  // ===== Storage =====
-  function getFarms() {
-    return safeJSON(localStorage.getItem(FARMS_KEY), []);
+  // ===============================
+  // ✅ DB: Farms + Satellite History
+  // ===============================
+  async function dbListFarms() {
+    const res = await fetch(`${API_BASE}/db/farms`, { headers: authHeaders() });
+    if (!res.ok) throw new Error("Failed to load farms");
+    return await res.json();
   }
-  function setFarms(arr) {
-    localStorage.setItem(FARMS_KEY, JSON.stringify(arr || []));
+
+  async function dbUpsertFarm(name, geometry) {
+    const res = await fetch(`${API_BASE}/db/farms/upsert`, {
+      method: "POST",
+      headers: authHeadersJson(),
+      body: JSON.stringify({ name, geometry }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to save farm");
+    }
+    return await res.json(); // {id,name}
   }
-  function getFarmById(id) {
-    return getFarms().find((f) => f.id === id) || null;
+
+  async function dbGetFarmById(id) {
+    const farms = await dbListFarms();
+    return farms.find((f) => String(f.id) === String(id)) || null;
   }
+
+  async function dbGetRuns() {
+    const res = await fetch(`${API_BASE}/db/history/satellite`, {
+      headers: authHeaders(),
+    });
+    if (!res.ok) throw new Error("Failed to load satellite history");
+    return await res.json();
+  }
+
+  // ✅ Robust to snake_case OR camelCase returned by API
+  async function dbGetLatestRunForFarm(farmId) {
+    const runs = await dbGetRuns();
+
+    const filtered = runs.filter((r) => {
+      const fid = r.farm_id ?? r.farmId ?? r.farmID ?? r.farm;
+      return String(fid) === String(farmId);
+    });
+
+    filtered.sort((a, b) => {
+      const ta = new Date(a.created_at ?? a.createdAt ?? a.timestamp ?? 0).getTime();
+      const tb = new Date(b.created_at ?? b.createdAt ?? b.timestamp ?? 0).getTime();
+      return tb - ta;
+    });
+
+    return filtered[0] || null;
+  }
+
+  async function dbCreateSatelliteReport(payload) {
+    const res = await fetch(`${API_BASE}/db/history/satellite`, {
+      method: "POST",
+      headers: authHeadersJson(),
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to save satellite report");
+    }
+    return await res.json();
+  }
+
+  // ===== UI-only preference =====
   function setActiveFarmId(id) {
     if (!id) localStorage.removeItem(ACTIVE_FARM_KEY);
-    else localStorage.setItem(ACTIVE_FARM_KEY, id);
+    else localStorage.setItem(ACTIVE_FARM_KEY, String(id));
   }
   function getActiveFarmId() {
     return localStorage.getItem(ACTIVE_FARM_KEY);
-  }
-
-  function getRuns() {
-    const n = safeJSON(localStorage.getItem(SAT_RUNS_KEY), []);
-    const old = safeJSON(localStorage.getItem(SAT_REPORTS_KEY), []);
-    const merged = [
-      ...(Array.isArray(n) ? n : []),
-      ...(Array.isArray(old) ? old : []),
-    ];
-    // de-dupe by id
-    const seen = new Set();
-    const out = [];
-    for (const r of merged) {
-      const id = r?.id || null;
-      if (id) {
-        if (seen.has(id)) continue;
-        seen.add(id);
-      }
-      out.push(r);
-    }
-    return out;
-  }
-  function setRuns(arr) {
-    localStorage.setItem(SAT_RUNS_KEY, JSON.stringify(arr || []));
-  }
-  function getLatestRunForFarm(farmId) {
-    const runs = getRuns().filter((r) => (r.farmId || r.farm_id) === farmId);
-    runs.sort((a, b) => {
-      const ta = new Date(a.createdAt || a.timestamp || a.ts || 0).getTime();
-      const tb = new Date(b.createdAt || b.timestamp || b.ts || 0).getTime();
-      return tb - ta;
-    });
-    return runs[0] || null;
   }
 
   // ===== Health label helper =====
@@ -244,7 +287,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // ===== Trend chart =====
   function destroyChart() {
     if (trendChart) {
-      try { trendChart.destroy(); } catch {}
+      try {
+        trendChart.destroy();
+      } catch {}
       trendChart = null;
     }
   }
@@ -254,10 +299,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const canvas = document.getElementById("trendChart");
     if (!canvas) return;
 
-    const labels = (series || []).map((r) => String(r.date || r.ts || "").slice(0, 10));
-    const ndvi = (series || []).map((r) => (r.ndvi == null ? null : Number(r.ndvi)));
-    const ndmi = (series || []).map((r) => (r.ndmi == null ? null : Number(r.ndmi)));
-    const evi  = (series || []).map((r) => (r.evi  == null ? null : Number(r.evi)));
+    const labels = (series || []).map((r) =>
+      String(r.date || r.ts || "").slice(0, 10)
+    );
+    const ndvi = (series || []).map((r) =>
+      r.ndvi == null ? null : Number(r.ndvi)
+    );
+    const ndmi = (series || []).map((r) =>
+      r.ndmi == null ? null : Number(r.ndmi)
+    );
+    const evi = (series || []).map((r) => (r.evi == null ? null : Number(r.evi)));
 
     const seriesMap = { ndvi, ndmi, evi };
     const y = seriesMap[currentTrendKey] || ndvi;
@@ -324,20 +375,35 @@ document.addEventListener("DOMContentLoaded", () => {
     const evi = summary.evi ?? null;
 
     const cloud = summary.cloud_pct ?? summary.cloud ?? null;
-    const scene = summary.scene_date ?? summary.date ?? run.scene_date ?? run.end_date ?? run.createdAt ?? null;
+    const scene =
+      summary.scene_date ??
+      summary.date ??
+      run.scene_date ??
+      run.end_date ??
+      run.created_at ??
+      run.createdAt ??
+      null;
 
     if (elKpiNdvi) elKpiNdvi.textContent = fmt(ndvi);
     if (elKpiNdmi) elKpiNdmi.textContent = fmt(ndmi);
     if (elKpiEvi) elKpiEvi.textContent = fmt(evi);
-    if (elKpiCloud) elKpiCloud.textContent = cloud == null ? "—" : `${Number(cloud).toFixed(0)}%`;
-    if (elKpiScene) elKpiScene.textContent = scene ? String(scene).slice(0, 10) : "—";
+    if (elKpiCloud)
+      elKpiCloud.textContent =
+        cloud == null ? "—" : `${Number(cloud).toFixed(0)}%`;
+    if (elKpiScene)
+      elKpiScene.textContent = scene ? String(scene).slice(0, 10) : "—";
 
-    // overlay tiles (optional)
     setOverlay(run.tiles_url || run.tilesUrl || null);
 
-    // health badge
     const h = health?.level ? health : classifyHealth(ndvi);
-    const emoji = h.level === "good" ? "✅ " : h.level === "warn" ? "⚠️ " : h.level === "bad" ? "🚨 " : "ℹ️ ";
+    const emoji =
+      h.level === "good"
+        ? "✅ "
+        : h.level === "warn"
+        ? "⚠️ "
+        : h.level === "bad"
+        ? "🚨 "
+        : "ℹ️ ";
     setBadge(h.level, emoji + (h.label || "Satellite Result"));
 
     const advice = Array.isArray(h.advice) ? [...h.advice] : [];
@@ -349,7 +415,11 @@ document.addEventListener("DOMContentLoaded", () => {
         elPill.style.display = "inline-flex";
         elPill.textContent = `NDVI change: ${sign}${pct.toFixed(1)}%`;
       }
-      advice.unshift(`NDVI change (${ch.period_days || 30}d vs previous): ${sign}${pct.toFixed(1)}%`);
+      advice.unshift(
+        `NDVI change (${ch.period_days || 30}d vs previous): ${sign}${pct.toFixed(
+          1
+        )}%`
+      );
     } else {
       if (elPill) elPill.style.display = "none";
     }
@@ -364,14 +434,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ===== Farm dropdown =====
-  function fillFarmSelect() {
+  async function fillFarmSelect() {
     const sel = document.getElementById("farmSelect");
     if (!sel) return;
 
-    const farms = getFarms();
+    const farms = await dbListFarms();
     sel.innerHTML = "";
 
-    // Allow adding a brand new farm explicitly
     const optNew = document.createElement("option");
     optNew.value = "__new__";
     optNew.textContent = "➕ Add new farm…";
@@ -388,17 +457,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     farms.forEach((f) => {
       const opt = document.createElement("option");
-      opt.value = f.id;
+      opt.value = String(f.id); // ✅ always string
       opt.textContent = f.name;
       sel.appendChild(opt);
     });
 
     const active = getActiveFarmId();
-    if (active && farms.some((f) => f.id === active)) {
-      sel.value = active;
+    if (active && farms.some((f) => String(f.id) === String(active))) {
+      sel.value = String(active);
     } else {
-      sel.value = farms[0].id;
-      setActiveFarmId(farms[0].id);
+      sel.value = String(farms[0].id);
+      setActiveFarmId(String(farms[0].id));
     }
   }
 
@@ -415,16 +484,19 @@ document.addEventListener("DOMContentLoaded", () => {
     drawnItems.addLayer(e.layer);
     setBadge("unknown", "Boundary drawn");
 
-    // ✅ Make it feel "selected" right away (shows edit handles)
     if (e.layer?.editing?.enable) {
-      try { e.layer.editing.enable(); } catch {}
+      try {
+        e.layer.editing.enable();
+      } catch {}
     }
 
-    setAdvice(["Boundary drawn.", "Click “Save Farm” to store it, then “Update Now”."]);
+    setAdvice([
+      "Boundary drawn.",
+      "Click “Save Farm” to store it, then “Update Now”.",
+    ]);
     fixMapSize();
   });
 
-  // If user edits boundary (pencil tool), keep it selected + update badge
   map.on(L.Draw.Event.EDITED, () => {
     const g = getCurrentGeometry();
     if (g) {
@@ -436,7 +508,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ===== Actions =====
   async function updateNow() {
     const farmId = getSelectedFarmId();
-    const farm = farmId ? getFarmById(farmId) : null;
+    const farm = farmId ? await dbGetFarmById(farmId) : null;
 
     let geom = getCurrentGeometry() || farm?.geometry;
     if (!geom) {
@@ -450,7 +522,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const end_date = elEnd?.value;
 
     setBadge("unknown", "Updating…");
-    setAdvice(["Fetching Sentinel-2 indices (NDVI/NDMI/EVI)…", "This can take a few seconds."]);
+    setAdvice([
+      "Fetching Sentinel-2 indices (NDVI/NDMI/EVI)…",
+      "This can take a few seconds.",
+    ]);
     if (btnUpdate) {
       btnUpdate.disabled = true;
       btnUpdate.textContent = "Updating…";
@@ -459,7 +534,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const res = await fetch(`${API_BASE}/satellite/ndvi/mvp`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeadersJson(),
         body: JSON.stringify({ geometry: geom, start_date, end_date }),
       });
 
@@ -472,10 +547,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const data = await res.json();
 
-      // show immediately
       applyRunToUI(data);
 
-      // store as "current view"
       lastFetchedRun = {
         ...data,
         geometry: geom,
@@ -489,7 +562,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ]);
     } catch (e) {
       setBadge("unknown", "Error");
-      setAdvice(["Network error. Is the backend running on port 8000?"]);
+      setAdvice(["Network error. Is the backend running on port 8001?"]);
     } finally {
       if (btnUpdate) {
         btnUpdate.disabled = false;
@@ -498,61 +571,47 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function saveFarm() {
-    const farmId = getSelectedFarmId();
-    const farms = getFarms();
-
+  async function saveFarm() {
     const geom = getCurrentGeometry();
     if (!geom) {
       alert("Draw a boundary first.");
       return;
     }
 
-    // If user chose "Add new farm…", create a new one
-    let farm = farmId ? farms.find((f) => f.id === farmId) : null;
+    const farmId = getSelectedFarmId();
+    const existing = farmId ? await dbGetFarmById(farmId) : null;
 
-    const name = prompt("Farm name:", farm?.name || "My Farm");
+    const name = prompt("Farm name:", existing?.name || "My Farm");
     if (!name) return;
 
-    const now = new Date().toISOString();
+    try {
+      const saved = await dbUpsertFarm(name, geom);
+      setActiveFarmId(saved.id);
 
-    if (farm) {
-      farm.name = name;
-      farm.geometry = geom;
-      farm.updatedAt = now;
-    } else {
-      farm = {
-        id: uuid(),
-        name,
-        geometry: geom,
-        createdAt: now,
-        updatedAt: now,
-      };
-      farms.push(farm);
+      await fillFarmSelect();
+      if (selFarm) selFarm.value = String(saved.id);
+
+      setBadge("unknown", "Farm Saved");
+      setAdvice([`Saved: ${saved.name}`, "Now click “Update Now” to fetch indices."]);
+    } catch (e) {
+      alert(e.message);
     }
-
-    setFarms(farms);
-    setActiveFarmId(farm.id);
-    fillFarmSelect();
-    selFarm.value = farm.id;
-
-    setBadge("unknown", "Farm Saved");
-    setAdvice([`Saved: ${farm.name}`, "Now click “Update Now” to fetch indices."]);
   }
 
-  function loadFarm() {
+  async function loadFarm() {
     const farmId = getSelectedFarmId();
     if (!farmId) {
       setBadge("unknown", "Select Farm");
       setAdvice(["Select a saved farm from the dropdown, then click Load."]);
       return;
     }
-    const farm = getFarmById(farmId);
+
+    const farm = await dbGetFarmById(farmId);
     if (!farm) return;
 
     renderGeometry(farm.geometry);
 
-    const latest = getLatestRunForFarm(farm.id);
+    const latest = await dbGetLatestRunForFarm(farm.id);
     if (latest) {
       lastFetchedRun = latest;
       applyRunToUI(latest, { extraAdvice: "Loaded latest saved result." });
@@ -580,12 +639,16 @@ document.addEventListener("DOMContentLoaded", () => {
     if (elPill) elPill.style.display = "none";
 
     setBadge("unknown", "Ready");
-    setAdvice(["Select or draw a farm boundary.", "Tap “Update Now” to fetch satellite indices."]);
+    setAdvice([
+      "Select or draw a farm boundary.",
+      'Tap "Update Now" to fetch satellite indices.',
+    ]);
   }
 
-  function saveRun() {
+  async function saveRun() {
     const farmId = getSelectedFarmId();
-    const farm = farmId ? getFarmById(farmId) : null;
+    const farm = farmId ? await dbGetFarmById(farmId) : null;
+
     if (!farmId || !farm) {
       alert("Select a saved farm first (Save Farm).");
       return;
@@ -595,24 +658,25 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const runs = getRuns();
+    try {
+      await dbCreateSatelliteReport({
+        farmId: Number(farm.id),
+        farmName: farm.name,
+        geometry: lastFetchedRun.geometry || farm.geometry,
+        summary: lastFetchedRun.summary || {},
+        timeseries: lastFetchedRun.timeseries || [],
+        change: lastFetchedRun.change || null,
+        createdAt: new Date().toISOString(),
+      });
 
-    const run = {
-      ...lastFetchedRun,
-      id: uuid(),
-      farmId: farm.id,
-      farmName: farm.name,
-      createdAt: new Date().toISOString(),
-    };
-
-    runs.push(run);
-    setRuns(runs);
-
-    setBadge("unknown", "Saved");
-    setAdvice([
-      "Saved result for this farm.",
-      "Go to Reports → Satellite Insights to download/print.",
-    ]);
+      setBadge("unknown", "Saved");
+      setAdvice([
+        "Saved result for this farm.",
+        "Go to Reports → Satellite Insights to download/print.",
+      ]);
+    } catch (e) {
+      alert(e.message);
+    }
   }
 
   // ===== PDF (Download/Print current run) =====
@@ -671,11 +735,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
-    doc.text(`Generated: ${new Date().toISOString().slice(0, 19).replace("T", " ")}`, margin, y);
+    doc.text(
+      `Generated: ${new Date().toISOString().slice(0, 19).replace("T", " ")}`,
+      margin,
+      y
+    );
     y += 8;
 
     const farmId = getSelectedFarmId();
-    const farm = farmId ? getFarmById(farmId) : null;
+    const farm = farmId ? await dbGetFarmById(farmId) : null;
+
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.text(`Farm: ${farm?.name || "Unsaved boundary"}`, margin, y);
@@ -686,20 +755,32 @@ document.addEventListener("DOMContentLoaded", () => {
     const ndmi = summary.ndmi;
     const evi = summary.evi;
     const cloud = summary.cloud_pct ?? summary.cloud;
-    const scene = summary.scene_date ?? summary.date ?? run.end_date ?? run.createdAt;
+    const scene =
+      summary.scene_date ??
+      summary.date ??
+      run.end_date ??
+      run.created_at ??
+      run.createdAt ??
+      null;
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(11);
     doc.text(`NDVI: ${fmt(ndvi)}   NDMI: ${fmt(ndmi)}   EVI: ${fmt(evi)}`, margin, y);
     y += 6;
-    doc.text(`Cloud: ${cloud == null ? "—" : Number(cloud).toFixed(0) + "%"}   Scene: ${scene ? String(scene).slice(0, 10) : "—"}`, margin, y);
+    doc.text(
+      `Cloud: ${
+        cloud == null ? "—" : Number(cloud).toFixed(0) + "%"
+      }   Scene: ${scene ? String(scene).slice(0, 10) : "—"}`,
+      margin,
+      y
+    );
     y += 10;
 
     const series = Array.isArray(run.timeseries) ? run.timeseries : [];
     const labels = series.map((r) => String(r.date || r.ts || "").slice(0, 10));
     const ndviSeries = series.map((r) => (r.ndvi == null ? null : Number(r.ndvi)));
     const ndmiSeries = series.map((r) => (r.ndmi == null ? null : Number(r.ndmi)));
-    const eviSeries  = series.map((r) => (r.evi  == null ? null : Number(r.evi)));
+    const eviSeries = series.map((r) => (r.evi == null ? null : Number(r.evi)));
 
     async function addChart(title, s) {
       if (!labels.length) return;
@@ -732,9 +813,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!doc) return;
 
     const farmId = getSelectedFarmId();
-    const farm = farmId ? getFarmById(farmId) : null;
+    const farm = farmId ? await dbGetFarmById(farmId) : null;
     const farmName = (farm?.name || "Farm").replace(/\s+/g, "_");
-    const end = (lastFetchedRun?.end_date || new Date().toISOString().slice(0, 10)).slice(0, 10);
+    const end = (lastFetchedRun?.end_date || new Date().toISOString().slice(0, 10))
+      .slice(0, 10);
 
     doc.save(`AgriVision_FarmMonitoring_${farmName}_${end}.pdf`);
   }
@@ -768,21 +850,43 @@ document.addEventListener("DOMContentLoaded", () => {
   btnPrintRun?.addEventListener("click", printRunPDF);
 
   // ===== Init =====
-  fillFarmSelect();
+  try {
+    await fillFarmSelect();
 
-  // load active farm on boot
-  const activeId = getActiveFarmId();
-  if (activeId) {
-    const f = getFarmById(activeId);
-    if (f) {
-      renderGeometry(f.geometry);
-      const latest = getLatestRunForFarm(f.id);
-      if (latest) applyRunToUI(latest);
-      setBadge("unknown", "Farm Loaded");
-      setAdvice([`Loaded: ${f.name}`, latest ? "Showing latest saved results." : "Click Update Now to fetch indices."]);
+    const activeId = getActiveFarmId();
+
+    if (!activeId) {
+      setBadge("unknown", "Ready");
+      setAdvice([
+        "Select or draw a farm boundary.",
+        'Tap "Update Now" to fetch satellite indices.',
+      ]);
+      return;
     }
-  } else {
-    setBadge("unknown", "Ready");
-    setAdvice(["Select or draw a farm boundary.", "Tap “Update Now” to fetch satellite indices."]);
+
+    const f = await dbGetFarmById(activeId);
+    if (!f) {
+      setBadge("unknown", "Ready");
+      setAdvice([
+        "Saved farm not found (maybe deleted).",
+        'Select or draw a farm boundary, then tap "Save Farm".',
+      ]);
+      return;
+    }
+
+    renderGeometry(f.geometry);
+
+    const latest = await dbGetLatestRunForFarm(activeId);
+    if (latest) applyRunToUI(latest);
+
+    setBadge("unknown", "Farm Loaded");
+    setAdvice([
+      `Loaded: ${f.name}`,
+      latest ? "Showing latest saved results." : 'Click "Update Now" to fetch indices.',
+    ]);
+  } catch (e) {
+    console.error(e);
+    setBadge("bad", "Init error");
+    setAdvice(["Could not load farms/history.", e?.message || String(e)]);
   }
 });

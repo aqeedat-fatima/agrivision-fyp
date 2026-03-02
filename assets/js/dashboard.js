@@ -1,14 +1,67 @@
 
 // assets/js/dashboard.js
 document.addEventListener("DOMContentLoaded", () => {
+  function getSessionUser() {
+    try {
+      return JSON.parse(localStorage.getItem("agrivision_user") || "null");
+    } catch {
+      return null;
+    }
+  }
+
+  function requireUser() {
+    const u = getSessionUser();
+    if (!u?.id) {
+      window.location.href = "login.html";
+    }
+    return u;
+  }
+  const USER = requireUser();
+  const USER_SUFFIX = `_${USER.id}`;
+
+  // ===============================
+  // ✅ DB + KPI HELPERS
+  // ===============================
+  const API_BASE = "http://127.0.0.1:8001";
+  const API_URL = `${API_BASE}/predict`;
+
+  const authHeaders = () => ({ "X-User-Id": String(USER.id) });
+
+  const dbListFarms = async () => {
+    const res = await fetch(`${API_BASE}/db/farms`, { headers: authHeaders() });
+    if (!res.ok) throw new Error("Failed to load farms");
+    return await res.json();
+  };
+
+  const dbListDiseaseHistory = async () => {
+    const res = await fetch(`${API_BASE}/db/history/disease`, { headers: authHeaders() });
+    if (!res.ok) throw new Error("Failed to load disease history");
+    return await res.json();
+  };
+
+  const dbListSatelliteHistory = async () => {
+    const res = await fetch(`${API_BASE}/db/history/satellite`, { headers: authHeaders() });
+    if (!res.ok) throw new Error("Failed to load satellite history");
+    return await res.json();
+  };
   const uploadCard = document.getElementById("uploadCard");
   const fileInput = document.getElementById("imageUploadInput");
-  const API_URL = "http://127.0.0.1:8000/predict";
-
+  // API_URL is defined above (API_BASE + /predict)
   // ===== Profile / Logout =====
   const profileBtn = document.getElementById("profileBtn");
   const profileDropdown = document.getElementById("profileDropdown");
   const logoutBtn = document.getElementById("logoutBtn");
+
+  // ✅ show logged-in user name (not hardcoded)
+  const profileNameEl =
+    document.getElementById("profileName") ||
+    profileBtn?.querySelector(".profile-name") ||
+    profileBtn?.querySelector("span");
+
+  if (profileNameEl) {
+    profileNameEl.textContent =
+      USER.full_name || USER.fullName || USER.name || USER.email || "Profile";
+  }
 
   profileBtn?.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -84,6 +137,80 @@ document.addEventListener("DOMContentLoaded", () => {
   // KPI elements
   const kpiDetectedDiseasesEl = document.getElementById("kpiDetectedDiseases");
   const kpiDiseasesMoMValueEl = document.getElementById("kpiDiseasesMoMValue");
+
+  // ==========================================================
+  // ✅ DB-driven KPI refresh (Farms monitored, Diseases detected, Avg NDVI)
+  // ==========================================================
+  // (removed duplicate toNum helper; using DB KPI version above)
+  const extractNdvi = (run) => {
+    const s = run?.summary || {};
+    return toNum(s.ndvi ?? s.mean ?? s.mean_ndvi ?? s.meanNdvi);
+  };
+
+  const isHealthyDiseaseRow = (row) => {
+    const k = String(
+      row?.diseaseKey ||
+        row?.disease_key ||
+        row?.labelKey ||
+        row?.label_key ||
+        row?.pred_label ||
+        row?.label ||
+        ""
+    )
+      .toLowerCase()
+      .trim();
+    return k === "healthy" || k === "healthy_leaf";
+  };
+
+  const refreshDashboardKPIs = async () => {
+    const elFields = document.getElementById("kpiFieldsMonitored");
+    const elDetected = document.getElementById("kpiDetectedDiseases");
+    const elAvgNdvi = document.getElementById("kpiAvgNdvi");
+
+    if (!elFields && !elDetected && !elAvgNdvi) return;
+
+    try {
+      const [farms, diseaseRows, satRows] = await Promise.all([
+        dbListFarms(),
+        dbListDiseaseHistory(),
+        dbListSatelliteHistory(),
+      ]);
+
+      const fieldsCount = Array.isArray(farms) ? farms.length : 0;
+
+      const diseasedCount = Array.isArray(diseaseRows)
+        ? diseaseRows.filter((r) => !isHealthyDiseaseRow(r)).length
+        : 0;
+
+      // latest sat run per farm
+      const latestByFarm = new Map();
+      (Array.isArray(satRows) ? satRows : []).forEach((r) => {
+        const fid = r.farm_id ?? r.farmId ?? r.farm;
+        if (!fid) return;
+
+        const t = new Date(r.created_at || r.createdAt || r.timestamp || r.ts || 0).getTime();
+        const cur = latestByFarm.get(String(fid));
+        const tc = cur
+          ? new Date(cur.created_at || cur.createdAt || cur.timestamp || cur.ts || 0).getTime()
+          : -1;
+
+        if (!cur || t > tc) latestByFarm.set(String(fid), r);
+      });
+
+      const ndvis = [...latestByFarm.values()]
+        .map(extractNdvi)
+        .filter((v) => v != null);
+
+      const avgNdvi =
+        ndvis.length > 0 ? ndvis.reduce((a, b) => a + b, 0) / ndvis.length : null;
+
+      if (elFields) elFields.textContent = String(fieldsCount);
+      if (elDetected) elDetected.textContent = String(diseasedCount);
+      if (elAvgNdvi) elAvgNdvi.textContent = avgNdvi == null ? "—" : avgNdvi.toFixed(2);
+    } catch (e) {
+      console.error("KPI refresh failed:", e);
+    }
+  };
 
   // ==========================================================
   // STORAGE HELPERS (single source of truth)
@@ -213,11 +340,11 @@ document.addEventListener("DOMContentLoaded", () => {
     return Number.isFinite(n) ? n : null;
   };
 
-  const extractNdvi = (run) => {
-    if (!run) return null;
-    const s = run.summary || {};
-    return toNum(s.ndvi ?? s.mean ?? s.mean_ndvi ?? s.meanNdvi);
-  };
+  //const extractNdvi = (run) => {
+    //if (!run) return null;
+    //const s = run.summary || {};
+    //return toNum(s.ndvi ?? s.mean ?? s.mean_ndvi ?? s.meanNdvi);
+  //};
 
   const extractNdmi = (run) => {
     if (!run) return null;
@@ -300,11 +427,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
 
-  renderFarmKPIs();
+  refreshDashboardKPIs();
   wireKpiNav();
 
   // Refresh when returning from farm monitor
-  window.addEventListener("focus", renderFarmKPIs);
+  window.addEventListener("focus", refreshDashboardKPIs);
 
   // ==========================================================
   // MoM logic (based on scans history)
@@ -364,7 +491,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // Render KPIs on load
-  renderDiseaseCount();
+  refreshDashboardKPIs();
   renderDiseasesMoM();
 
   // ==========================================================
@@ -1080,6 +1207,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const formData = new FormData();
     formData.append("file", file);
 
+    const user = requireUser();                 // ✅ get logged-in user
+    formData.append("user_id", String(user.id)); // ✅ send user_id to backend
+
     try {
       // Wait for preview to load (quality scoring)
       await new Promise((resolve) => {
@@ -1105,12 +1235,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const labelKey = getLabelKey(labelRaw);
       const base = DISEASE_BASE[labelKey] || DISEASE_BASE.healthy_leaf;
 
-      // ✅ increment KPI counter if not healthy
+      // ✅ KPI cards are DB-driven now, so refresh them after a diseased detection
       if (labelKey !== "healthy_leaf") {
-        setDiseaseCount(getDiseaseCount() + 1);
-        renderDiseaseCount();
+        refreshDashboardKPIs();
       }
-
       const confidencePct = confidenceRaw != null ? `${(confidenceRaw * 100).toFixed(1)}%` : "—%";
 
       const agreementFromProbs = computeAgreementFromProbabilities(probabilities);

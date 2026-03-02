@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgriVision • Create Account</title>
+  <link rel="stylesheet" href="assets/css/auth.css" />
+</head>
+<body>
+
+<div class="auth-wrapper">
+  <div class="auth-card">
+
+    <h1 class="auth-title">Create Account</h1>
+    <p class="auth-sub">
+      Join AgriVision to monitor your farms and track crop health.
+    </p>
+
+    <form id="signupForm">
+
+      <div class="input-group">
+        <label>Full Name</label>
+        <input type="text" id="full_name" placeholder="e.g. Aqeedat Fatima" required>
+      </div>
+
+      <div class="input-group">
+        <label>Email Address</label>
+        <input type="email" id="email" placeholder="e.g. aqeedat@email.com" required>
+      </div>
+
+      <div class="input-group">
+        <label>Password</label>
+        <div class="password-wrap">
+          <input type="password" id="password" placeholder="Create a strong password" required>
+          <button type="button" id="togglePassword">👁</button>
+        </div>
+        <small>Use 8+ characters for better security.</small>
+      </div>
+
+      <button type="submit" class="btn-primary">Create Account</button>
+
+      <p class="auth-link">
+        Already have an account?
+        <a href="login.html">Sign in</a>
+      </p>
+
+    </form>
+  </div>
+</div>
+
+<script src="assets/js/signup.js"></script>
+</body>
+</html>
