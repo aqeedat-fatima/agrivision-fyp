@@ -56,6 +56,9 @@ function resetToEnglish() {
 }
 
 function toggleLanguage() {
+  document.getElementById("langLabel").textContent =
+  localStorage.getItem("lang") === "ur" ? "UR" : "EN";
+
   const current = localStorage.getItem("lang") || "en";
 
   if (current === "en") {
@@ -73,4 +76,9 @@ window.addEventListener("load", () => {
   if (lang === "ur") {
     setTimeout(() => translatePage("ur"), 500);
   }
+});
+
+window.addEventListener("load", () => {
+  const label = document.getElementById("langLabel");
+  if (label) label.textContent = localStorage.getItem("lang") === "ur" ? "UR" : "EN";
 });
