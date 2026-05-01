@@ -1121,3 +1121,59 @@ html[data-theme="dark"] .theme-toggle {
   color: #ffffff !important;
   border-color: #1e7a3c !important;
 }
+
+.sidebar {
+  transition: width 0.2s ease, padding 0.2s ease;
+}
+
+.sidebar.collapsed {
+  width: 76px;
+  padding: 16px 10px 12px;
+}
+
+.sidebar.collapsed .logo-texts,
+.sidebar.collapsed .nav-item span,
+.sidebar.collapsed .nav-section-label {
+  display: none;
+}
+
+.sidebar.collapsed .sidebar-header {
+  justify-content: center;
+}
+
+.sidebar.collapsed .logo-circle {
+  margin-right: 0;
+}
+
+.sidebar.collapsed .sidebar-close {
+  position: absolute;
+  top: 84px;
+  left: 28px;
+  font-size: 18px;
+}
+
+.sidebar.collapsed .sidebar-close::before {
+  content: "☰";
+}
+
+.sidebar.collapsed .sidebar-close {
+  color: transparent;
+}
+
+.sidebar.collapsed .sidebar-close::before {
+  color: #607d8b;
+}
+
+.sidebar.collapsed .nav-item {
+  justify-content: center;
+  padding: 12px;
+}
+
+.sidebar.collapsed .nav-item.active .nav-pill {
+  justify-content: center;
+  padding: 12px;
+}
+
+.sidebar.collapsed .nav-bottom {
+  border-top: 1px dashed #dfe8f6;
+}

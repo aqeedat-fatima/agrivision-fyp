@@ -22,3 +22,12 @@
     });
   });
 })();
+
+document.addEventListener("DOMContentLoaded", () => {
+  const sidebar = document.querySelector(".sidebar");
+  const closeBtn = document.querySelector(".sidebar-close");
+
+  closeBtn?.addEventListener("click", () => {
+    sidebar?.classList.toggle("collapsed");
+  });
+});
