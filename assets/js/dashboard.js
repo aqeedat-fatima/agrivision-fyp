@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ===============================
   // ✅ DB + KPI HELPERS
   // ===============================
-  const API_BASE = "http://127.0.0.1:8001";
+  const API_BASE = "";
   const API_URL = `${API_BASE}/predict`;
 
   const authHeaders = () => ({ "X-User-Id": String(USER.id) });
