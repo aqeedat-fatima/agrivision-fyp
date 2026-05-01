@@ -189,37 +189,62 @@ document.addEventListener("DOMContentLoaded", () => {
   // Build PDFs
   // ===============================
   const DISEASE_GUIDE = {
-  "bacterial blight": {
-    symptoms: "Angular leaf spots, yellowing, wilting, and dark water-soaked lesions.",
-    cause: "Usually caused by bacterial infection spreading through water splash, contaminated tools, or infected plant debris.",
-    advice: "Remove infected leaves, avoid overhead irrigation, improve field sanitation, and use copper-based bactericide if recommended locally.",
-    prevention: "Use disease-free seeds, rotate crops, clean tools, and avoid working in wet fields."
-  },
-  "curl virus": {
-    symptoms: "Leaf curling, stunted plant growth, vein thickening, and reduced boll formation.",
-    cause: "A viral disease commonly spread by whiteflies.",
-    advice: "Control whiteflies, remove severely infected plants, and avoid using infected plant material.",
-    prevention: "Use resistant varieties, monitor whiteflies early, and keep weeds under control."
-  },
-  "fusarium wilt": {
-    symptoms: "Yellowing leaves, drooping, vascular browning, and gradual wilting.",
-    cause: "Soil-borne fungal infection that enters through roots.",
-    advice: "Improve drainage, remove infected plants, and avoid planting cotton repeatedly in infected soil.",
-    prevention: "Use resistant varieties, rotate crops, and avoid overwatering."
-  },
-  "leaf reddening": {
-    symptoms: "Leaves show reddish discoloration, weak growth, and possible nutrient stress symptoms.",
-    cause: "Often linked with nutrient imbalance, moisture stress, pest pressure, or crop stress conditions.",
-    advice: "Check soil nutrients, irrigation schedule, and pest presence. Apply balanced fertilizer if deficiency is confirmed.",
-    prevention: "Maintain proper irrigation, balanced nutrition, and regular crop monitoring."
-  },
-  "healthy": {
-    symptoms: "No major disease symptoms detected.",
-    cause: "The plant appears normal based on the uploaded image.",
-    advice: "Continue regular monitoring and maintain proper irrigation and nutrition.",
-    prevention: "Keep field sanitation high and inspect crops weekly."
-  }
-};
+    "bacterial blight": {
+      symptoms: "Angular or irregular water-soaked spots, yellow halos, browning leaf tissue, leaf drying, and possible defoliation in severe cases.",
+      cause: "A bacterial infection that spreads through infected seed, rain splash, irrigation water, contaminated tools, and crop debris.",
+      advice: "Remove severely infected plant material, avoid overhead irrigation, improve field drainage, and use locally recommended copper-based bactericide if infection is spreading.",
+      prevention: "Use certified disease-free seed, rotate crops, sanitize tools, avoid working in wet fields, and remove infected crop residue after harvest."
+    },
+
+    "curl virus": {
+      symptoms: "Upward or downward leaf curling, vein thickening, stunted growth, reduced flowering, and poor boll development.",
+      cause: "A viral disease commonly transmitted by whiteflies. It spreads faster when vector pressure is high.",
+      advice: "Control whiteflies immediately, remove severely infected plants, monitor nearby plants, and avoid unnecessary pesticide mixing.",
+      prevention: "Use resistant varieties, manage weeds, monitor whiteflies early, and apply integrated pest management practices."
+    },
+
+    "fusarium wilt": {
+      symptoms: "Yellowing, drooping, internal vascular browning, slow wilting, and plant decline even when moisture is available.",
+      cause: "A soil-borne fungal disease that enters through roots and blocks water movement inside the plant.",
+      advice: "Remove infected plants, improve drainage, avoid overwatering, and avoid replanting cotton repeatedly in infected soil.",
+      prevention: "Use resistant varieties, rotate with non-host crops, improve soil health, and avoid waterlogging."
+    },
+
+    "leaf redding": {
+      symptoms: "Reddish discoloration of leaves, weak crop growth, possible nutrient stress, and uneven leaf color.",
+      cause: "Often linked to nutrient imbalance, moisture stress, pest pressure, temperature stress, or crop-stage related stress.",
+      advice: "Check soil nutrients, irrigation schedule, and pest presence. Apply balanced fertilizer only after confirming deficiency.",
+      prevention: "Maintain balanced nutrition, avoid irrigation stress, monitor pests regularly, and track crop health weekly."
+    },
+
+    "leaf reddening": {
+      symptoms: "Reddish discoloration of leaves, weak crop growth, possible nutrient stress, and uneven leaf color.",
+      cause: "Often linked to nutrient imbalance, moisture stress, pest pressure, temperature stress, or crop-stage related stress.",
+      advice: "Check soil nutrients, irrigation schedule, and pest presence. Apply balanced fertilizer only after confirming deficiency.",
+      prevention: "Maintain balanced nutrition, avoid irrigation stress, monitor pests regularly, and track crop health weekly."
+    },
+
+    "leaf variegation": {
+      symptoms: "Patchy yellow-green patterns, uneven pigmentation, pale streaks, mottling, or abnormal leaf coloration.",
+      cause: "Can be caused by nutrient imbalance, viral infection, genetic variation, or environmental stress.",
+      advice: "Inspect whether symptoms are spreading. Check for pests, compare with nearby plants, and review fertilizer and irrigation patterns.",
+      prevention: "Use healthy seed, monitor early symptoms, maintain balanced nutrition, and remove suspicious plants if symptoms spread quickly."
+    },
+
+    "herbicide growth damage": {
+      symptoms: "Distorted leaf shape, yellowing, burnt patches, curling, stunted growth, and uneven damage across the field.",
+      cause: "Usually caused by herbicide drift, overdose, spray overlap, contaminated sprayers, or spraying during unsuitable weather.",
+      advice: "Stop further herbicide application, irrigate normally to reduce stress, avoid applying extra chemicals, and monitor recovery for 7 to 14 days.",
+      prevention: "Calibrate sprayers, avoid spraying in windy weather, clean equipment properly, follow label dosage, and separate herbicide equipment from nutrient sprays."
+    },
+
+    "healthy": {
+      symptoms: "No visible disease symptoms were detected in the uploaded image.",
+      cause: "The plant appears normal based on the image analysis.",
+      advice: "Continue routine monitoring and maintain proper irrigation, nutrition, and pest scouting.",
+      prevention: "Inspect crops weekly, keep the field clean, manage pests early, and use disease-free seed."
+    }
+  };
 
 function getDiseaseGuide(name) {
   const key = String(name || "").toLowerCase();
@@ -635,6 +660,184 @@ function makeTrendChartImage(timeseries = []) {
 
     if (action === "download") downloadDoc(doc, filename);
     if (action === "print") printDoc(doc);
+  });
+
+  function buildCropHealthSummaryPDF() {
+    const doc = makeDoc();
+    if (!doc) return null;
+
+    let y = 16;
+    const margin = 14;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text("AgriVision – Crop Health Summary", margin, y);
+    y += 8;
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text(`Generated: ${formatDateTime(Date.now())}`, margin, y); y += 5;
+    doc.text(`User: ${cleanText(USER.full_name || USER.email || "User")}`, margin, y); y += 9;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text("Summary Overview", margin, y);
+    y += 6;
+
+    const diseaseCount = diseaseCache.length;
+    const satelliteCount = satelliteCache.length;
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    y = addWrappedText(doc, `Total disease detections: ${diseaseCount}`, margin, y, 180, 5);
+    y = addWrappedText(doc, `Total satellite monitoring runs: ${satelliteCount}`, margin, y + 2, 180, 5);
+    y += 6;
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Recent Disease Detections", margin, y);
+    y += 6;
+
+    doc.setFont("helvetica", "normal");
+    diseaseCache.slice(0, 5).forEach(rep => {
+      const disease = cleanText(getDiseaseName(rep));
+      const risk = riskLabel(rep.risk || rep.riskLevel || rep.risk_level);
+      y = addWrappedText(doc, `• ${disease} | Risk: ${risk} | ${formatDateTime(getTimestamp(rep))}`, margin, y, 180, 5);
+      y += 2;
+    });
+
+    y += 5;
+    doc.setFont("helvetica", "bold");
+    doc.text("Recent Satellite Insights", margin, y);
+    y += 6;
+
+    doc.setFont("helvetica", "normal");
+    satelliteCache.slice(0, 5).forEach(rep => {
+      const ndvi = rep.summary?.ndvi ?? rep.summary?.mean;
+      const ndmi = rep.summary?.ndmi;
+      const evi = rep.summary?.evi;
+      y = addWrappedText(doc, `• ${rep.farmName || "Farm"} | NDVI: ${fmt(ndvi)} | NDMI: ${fmt(ndmi)} | EVI: ${fmt(evi)}`, margin, y, 180, 5);
+      y += 2;
+    });
+
+    y += 5;
+    doc.setFont("helvetica", "bold");
+    doc.text("Overall Recommendation", margin, y);
+    y += 6;
+
+    doc.setFont("helvetica", "normal");
+    y = addWrappedText(
+      doc,
+      "Continue combining image-based disease detection with satellite monitoring. Disease reports help identify visible leaf problems, while NDVI/NDMI/EVI trends help detect field-level stress over time.",
+      margin,
+      y,
+      180,
+      5
+    );
+
+    return doc;
+  }
+
+  function buildSatelliteSummaryPDF() {
+    if (!satelliteCache.length) {
+      alert("No satellite reports available yet.");
+      return null;
+    }
+
+    return buildSatelliteRunPDF(satelliteCache[0]);
+  }
+
+  function buildAIModelReportPDF() {
+    const doc = makeDoc();
+    if (!doc) return null;
+
+    let y = 16;
+    const margin = 14;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text("AgriVision – AI Model Report", margin, y);
+    y += 8;
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text(`Generated: ${formatDateTime(Date.now())}`, margin, y); y += 5;
+    doc.text(`User: ${cleanText(USER.full_name || USER.email || "User")}`, margin, y); y += 9;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text("Model Purpose", margin, y);
+    y += 6;
+
+    doc.setFont("helvetica", "normal");
+    y = addWrappedText(
+      doc,
+      "The AgriVision AI model analyzes uploaded cotton leaf images and predicts possible crop conditions using image-based classification. The output supports early diagnosis and decision-making.",
+      margin,
+      y,
+      180,
+      5
+    );
+    y += 6;
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Recent Predictions", margin, y);
+    y += 6;
+
+    doc.setFont("helvetica", "normal");
+    diseaseCache.slice(0, 8).forEach(rep => {
+      const disease = cleanText(getDiseaseName(rep));
+      const conf = normalizePercent(rep.confidence);
+      y = addWrappedText(
+        doc,
+        `• ${disease} | Confidence: ${conf != null ? conf.toFixed(1) + "%" : "—"} | ${formatDateTime(getTimestamp(rep))}`,
+        margin,
+        y,
+        180,
+        5
+      );
+      y += 2;
+    });
+
+    y += 5;
+    doc.setFont("helvetica", "bold");
+    doc.text("Interpretation Note", margin, y);
+    y += 6;
+
+    doc.setFont("helvetica", "normal");
+    y = addWrappedText(
+      doc,
+      "Higher confidence means the model is more certain about the detected class, but the result should still be verified through field inspection. The model is intended as decision support, not a replacement for expert diagnosis.",
+      margin,
+      y,
+      180,
+      5
+    );
+
+    return doc;
+  }
+
+  document.querySelectorAll(".rep-gen-btn").forEach((btn, index) => {
+    btn.addEventListener("click", async () => {
+      let doc = null;
+      let filename = "AgriVision_Report.pdf";
+
+      if (index === 0) {
+        doc = buildCropHealthSummaryPDF();
+        filename = "AgriVision_Crop_Health_Summary.pdf";
+      }
+
+      if (index === 1) {
+        doc = await buildSatelliteSummaryPDF();
+        filename = "AgriVision_Satellite_Insights_Report.pdf";
+      }
+
+      if (index === 2) {
+        doc = buildAIModelReportPDF();
+        filename = "AgriVision_AI_Model_Report.pdf";
+      }
+
+      if (doc) downloadDoc(doc, filename);
+    });
   });
 
   // ===============================
