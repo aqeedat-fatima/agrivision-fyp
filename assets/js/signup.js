@@ -1,5 +1,5 @@
 console.log("signup.js loaded ✅");
-const API = "http://127.0.0.1:8001";
+const API = "";
 
 // Password toggle (emoji version)
 const passwordInput = document.getElementById("password");
