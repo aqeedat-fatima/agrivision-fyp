@@ -1,39 +1,271 @@
-<!-- settings.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>AgriVision Settings</title>
-  <link rel="stylesheet" href="assets/css/settings.css">
+  <meta charset="UTF-8" />
+  <title>AgriVision – Settings</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+  <link rel="stylesheet" href="assets/css/settings.css" />
 </head>
+
 <body>
+<div class="app-shell">
 
-<div class="settings-container">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-circle">
+        <a href="index.html"><img src="assets/images/agrivision-logo.png" alt="AgriVision logo"></a>
+      </div>
+      <div class="logo-texts">
+        <div class="logo-title">AgriVision</div>
+        <div class="logo-subtitle">Aqeedat and Zunair</div>
+      </div>
+      <button class="sidebar-close" aria-label="Close sidebar">✕</button>
+    </div>
 
-  <h2>Settings</h2>
+    <nav class="nav-main">
+      <a href="dashboard.html" class="nav-item">
+        <img src="assets/icons/dashboard2.png" alt="" class="nav-icon">
+        <span>Dashboard</span>
+      </a>
 
-  <!-- PROFILE -->
-  <div class="card">
-    <h3>Profile Information</h3>
+      <a href="#" class="nav-item">
+        <img src="assets/icons/health.png" alt="" class="nav-icon">
+        <span>Crop Health</span>
+      </a>
 
-    <input id="fullName" placeholder="Full Name">
-    <input id="email" placeholder="Email">
-    <input id="phone" placeholder="Phone">
-    <input id="location" placeholder="Location">
+      <a href="farm-monitor.html" class="nav-item">
+        <img src="assets/icons/satellite.png" alt="" class="nav-icon">
+        <span>Satellite Insights</span>
+      </a>
 
-    <button id="saveProfile">Save Profile</button>
-  </div>
+      <a href="#" class="nav-item">
+        <img src="assets/icons/ndvi.png" alt="" class="nav-icon">
+        <span>NDVI Trends</span>
+      </a>
 
-  <!-- PASSWORD -->
-  <div class="card">
-    <h3>Change Password</h3>
+      <div class="nav-section-label">Monitoring</div>
 
-    <input type="password" id="currentPassword" placeholder="Current Password">
-    <input type="password" id="newPassword" placeholder="New Password">
+      <a href="#" class="nav-item">
+        <img src="assets/icons/alerts.png" alt="" class="nav-icon">
+        <span>Alerts</span>
+      </a>
 
-    <button id="changePassword">Update Password</button>
-  </div>
+      <a href="reports.html" class="nav-item">
+        <img src="assets/icons/reports.png" alt="" class="nav-icon">
+        <span>Reports</span>
+      </a>
+    </nav>
 
+    <div class="nav-bottom">
+      <a href="settings.html" class="nav-item active">
+        <div class="nav-pill">
+          <img src="assets/icons/settings.png" alt="" class="nav-icon">
+          <span>Settings</span>
+        </div>
+      </a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="page-title">Settings</h1>
+        <p class="page-subtitle">Manage your AgriVision account, security, and preferences.</p>
+      </div>
+
+      <div class="topbar-right">
+        <button class="top-pill top-lang">
+          <img src="assets/icons/globe.png" alt="" class="top-icon">
+          <span>EN</span>
+        </button>
+
+        <button class="top-icon-btn" aria-label="Notifications">
+          <img src="assets/icons/bell.png" alt="" class="top-icon">
+        </button>
+
+        <div class="profile-menu">
+          <button class="top-pill top-profile" id="profileBtn" type="button">
+            <span id="profileName">Profile</span>
+            <img src="assets/icons/dropdown.png" alt="" class="top-icon sm">
+          </button>
+
+          <div class="profile-dropdown is-hidden" id="profileDropdown">
+            <button class="profile-item" id="logoutBtn">Log out</button>
+          </div>
+        </div>
+
+        <button class="top-pill top-cycle">
+          <span>Current Cycle</span>
+          <img src="assets/icons/dropdown.png" alt="" class="top-icon sm">
+        </button>
+      </div>
+    </header>
+
+    <section class="content settings-content">
+
+      <div class="settings-head">
+        <div>
+          <div class="settings-title">System Settings</div>
+          <div class="settings-subtitle">Update profile details, secure your account, and configure field preferences.</div>
+        </div>
+      </div>
+
+      <div class="settings-tabs">
+        <button class="settings-tab active" type="button">Profile</button>
+        <button class="settings-tab" type="button">Security</button>
+        <button class="settings-tab" type="button">Preferences</button>
+        <button class="settings-tab" type="button">Integrations</button>
+      </div>
+
+      <section class="settings-grid">
+
+        <article class="settings-panel panel-wide">
+          <div class="panel-header">
+            <div class="panel-icon green">
+              <img src="assets/icons/person.png" alt="">
+            </div>
+            <div>
+              <h2>Profile Information</h2>
+              <p>Keep your AgriVision account details up to date.</p>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <label>
+              Full Name
+              <input id="fullName" placeholder="Full Name">
+            </label>
+
+            <label>
+              Email Address
+              <input id="email" placeholder="Email">
+            </label>
+
+            <label>
+              Phone Number
+              <input id="phone" placeholder="+92 300 0000000">
+            </label>
+
+            <label>
+              Location
+              <input id="location" placeholder="City / Province">
+            </label>
+          </div>
+
+          <div class="panel-actions">
+            <button class="btn-secondary" type="button">Cancel</button>
+            <button class="btn-primary" id="saveProfile" type="button">Save Profile</button>
+          </div>
+        </article>
+
+        <article class="settings-panel">
+          <div class="panel-header">
+            <div class="panel-icon yellow">
+              <img src="assets/icons/warning.png" alt="">
+            </div>
+            <div>
+              <h2>Account Security</h2>
+              <p>Change your password safely.</p>
+            </div>
+          </div>
+
+          <label>
+            Current Password
+            <input type="password" id="currentPassword" placeholder="Current Password">
+          </label>
+
+          <label>
+            New Password
+            <input type="password" id="newPassword" placeholder="New Password">
+          </label>
+
+          <button class="btn-primary full" id="changePassword" type="button">Update Password</button>
+
+          <div class="security-note">
+            Forgot your password? Reset flow and email verification can be added in the next phase.
+          </div>
+        </article>
+
+        <article class="settings-panel">
+          <div class="panel-header">
+            <div class="panel-icon blue">
+              <img src="assets/icons/globe.png" alt="">
+            </div>
+            <div>
+              <h2>App Preferences</h2>
+              <p>Customize how data appears in your dashboard.</p>
+            </div>
+          </div>
+
+          <label>
+            Language
+            <select>
+              <option>English</option>
+              <option>Urdu</option>
+            </select>
+          </label>
+
+          <label>
+            Area Unit
+            <select>
+              <option>Acres</option>
+              <option>Hectares</option>
+            </select>
+          </label>
+
+          <label>
+            Default Crop
+            <select>
+              <option>Cotton</option>
+            </select>
+          </label>
+        </article>
+
+        <article class="settings-panel panel-wide">
+          <div class="panel-header">
+            <div class="panel-icon green">
+              <img src="assets/icons/satellite.png" alt="">
+            </div>
+            <div>
+              <h2>Sign-in & Integrations</h2>
+              <p>Connect external sign-in providers for faster access.</p>
+            </div>
+          </div>
+
+          <div class="integration-row">
+            <div>
+              <strong>Google Sign-in</strong>
+              <span>Allow users to sign in with Google.</span>
+            </div>
+            <button class="btn-outline" type="button">Coming Soon</button>
+          </div>
+
+          <div class="integration-row">
+            <div>
+              <strong>Apple Sign-in</strong>
+              <span>Optional future integration for Apple accounts.</span>
+            </div>
+            <button class="btn-outline" type="button">Coming Soon</button>
+          </div>
+
+          <div class="integration-row">
+            <div>
+              <strong>Email Verification</strong>
+              <span>Verify users before enabling account changes.</span>
+            </div>
+            <button class="btn-outline" type="button">Planned</button>
+          </div>
+        </article>
+
+      </section>
+    </section>
+  </main>
 </div>
 
 <script src="assets/js/settings.js"></script>
