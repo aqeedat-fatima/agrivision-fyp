@@ -1041,3 +1041,83 @@ body {
   }
   .main { min-height: calc(100vh - 60px); }
 }
+
+html[data-theme="dark"] body {
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+html[data-theme="dark"] .sidebar,
+html[data-theme="dark"] .topbar,
+html[data-theme="dark"] .kpi-card,
+html[data-theme="dark"] .cta-card,
+html[data-theme="dark"] .result-card,
+html[data-theme="dark"] .reports-panel,
+html[data-theme="dark"] .rep-gen-card,
+html[data-theme="dark"] .settings-panel,
+html[data-theme="dark"] .profile-dropdown,
+html[data-theme="dark"] .export-menu {
+  background: #111827 !important;
+  border-color: #273449 !important;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.25) !important;
+}
+
+html[data-theme="dark"] .content {
+  background: #0f172a !important;
+}
+
+html[data-theme="dark"] .page-title,
+html[data-theme="dark"] .reports-title,
+html[data-theme="dark"] .reports-panel-title,
+html[data-theme="dark"] .rep-gen-title,
+html[data-theme="dark"] .settings-title,
+html[data-theme="dark"] .panel-header h2,
+html[data-theme="dark"] .kpi-value,
+html[data-theme="dark"] .cta-title,
+html[data-theme="dark"] .result-title,
+html[data-theme="dark"] .logo-title,
+html[data-theme="dark"] .nav-item,
+html[data-theme="dark"] .rep-item-title {
+  color: #f9fafb !important;
+}
+
+html[data-theme="dark"] .page-subtitle,
+html[data-theme="dark"] .reports-subtitle,
+html[data-theme="dark"] .reports-panel-sub,
+html[data-theme="dark"] .rep-gen-desc,
+html[data-theme="dark"] .settings-subtitle,
+html[data-theme="dark"] .panel-header p,
+html[data-theme="dark"] .kpi-label,
+html[data-theme="dark"] .cta-text,
+html[data-theme="dark"] .rep-item-sub,
+html[data-theme="dark"] .logo-subtitle {
+  color: #9ca3af !important;
+}
+
+html[data-theme="dark"] .top-pill,
+html[data-theme="dark"] .rep-item,
+html[data-theme="dark"] input,
+html[data-theme="dark"] select {
+  background: #1f2937 !important;
+  border-color: #374151 !important;
+  color: #f9fafb !important;
+}
+
+html[data-theme="dark"] input::placeholder {
+  color: #9ca3af !important;
+}
+
+html[data-theme="dark"] .nav-item:hover,
+html[data-theme="dark"] .profile-item:hover {
+  background: #1f2937 !important;
+}
+
+html[data-theme="dark"] .nav-item.active .nav-pill {
+  background: #1e7a3c !important;
+}
+
+html[data-theme="dark"] .theme-toggle {
+  background: #1e7a3c !important;
+  color: #ffffff !important;
+  border-color: #1e7a3c !important;
+}
