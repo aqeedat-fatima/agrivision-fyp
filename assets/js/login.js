@@ -29,7 +29,7 @@ toggleBtn.addEventListener("click", () => {
 // ===============================
 // REAL Backend Login Handler
 // ===============================
-const API = "http://127.0.0.1:8001";
+const API = "";
 
 document.getElementById("loginForm").addEventListener("submit", async function (e) {
     e.preventDefault();
