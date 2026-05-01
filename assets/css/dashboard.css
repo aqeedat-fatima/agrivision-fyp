@@ -1042,6 +1042,9 @@ body {
   .main { min-height: calc(100vh - 60px); }
 }
 
+/* =========================
+   Dark theme
+========================= */
 html[data-theme="dark"] body {
   background: #0f172a;
   color: #e5e7eb;
@@ -1122,6 +1125,9 @@ html[data-theme="dark"] .theme-toggle {
   border-color: #1e7a3c !important;
 }
 
+/* =========================
+   Collapsible sidebar
+========================= */
 .sidebar {
   transition: width 0.2s ease, padding 0.2s ease;
 }
@@ -1131,6 +1137,7 @@ html[data-theme="dark"] .theme-toggle {
   padding: 16px 10px 12px;
 }
 
+.sidebar.collapsed .logo-circle,
 .sidebar.collapsed .logo-texts,
 .sidebar.collapsed .nav-item span,
 .sidebar.collapsed .nav-section-label {
@@ -1139,30 +1146,25 @@ html[data-theme="dark"] .theme-toggle {
 
 .sidebar.collapsed .sidebar-header {
   justify-content: center;
-}
-
-.sidebar.collapsed .logo-circle {
-  margin-right: 0;
+  margin-bottom: 18px;
 }
 
 .sidebar.collapsed .sidebar-close {
-  position: relative;
-  top: auto;
-  left: auto;
-  margin: 10px auto 20px;
   display: flex;
+  align-items: center;
   justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 18px;
+  border-radius: 12px;
+  background: #f1f5f9;
+  color: transparent;
+  font-size: 0;
 }
 
 .sidebar.collapsed .sidebar-close::before {
   content: "☰";
-}
-
-.sidebar.collapsed .sidebar-close {
-  color: transparent;
-}
-
-.sidebar.collapsed .sidebar-close::before {
+  font-size: 19px;
   color: #607d8b;
 }
 
@@ -1171,11 +1173,36 @@ html[data-theme="dark"] .theme-toggle {
   padding: 12px;
 }
 
+.sidebar.collapsed .nav-item.active {
+  padding: 0;
+}
+
 .sidebar.collapsed .nav-item.active .nav-pill {
   justify-content: center;
   padding: 12px;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+}
+
+.sidebar.collapsed .nav-icon {
+  margin: 0;
 }
 
 .sidebar.collapsed .nav-bottom {
   border-top: 1px dashed #dfe8f6;
+  padding-top: 14px;
+}
+
+/* Dark mode collapsed sidebar button */
+html[data-theme="dark"] .sidebar.collapsed .sidebar-close {
+  background: #1f2937;
+}
+
+html[data-theme="dark"] .sidebar.collapsed .sidebar-close::before {
+  color: #e5e7eb;
+}
+
+html[data-theme="dark"] .sidebar.collapsed .nav-bottom {
+  border-top-color: #374151;
 }
