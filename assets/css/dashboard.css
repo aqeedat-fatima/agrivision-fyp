@@ -1146,10 +1146,12 @@ html[data-theme="dark"] .theme-toggle {
 }
 
 .sidebar.collapsed .sidebar-close {
-  position: absolute;
-  top: 84px;
-  left: 28px;
-  font-size: 18px;
+  position: relative;
+  top: auto;
+  left: auto;
+  margin: 10px auto 20px;
+  display: flex;
+  justify-content: center;
 }
 
 .sidebar.collapsed .sidebar-close::before {
