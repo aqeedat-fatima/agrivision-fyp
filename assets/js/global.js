@@ -1,27 +1,60 @@
-// translate whole page
-async function translatePage(targetLang = "ur") {
-  const elements = document.querySelectorAll("h1, h2, h3, p, span, button, label");
+const TRANSLATE_API = "/api/translate";
 
-  for (let el of elements) {
-    if (!el.innerText.trim()) continue;
+async function translateOneText(text, targetLang = "ur") {
+  if (!text || !text.trim()) return text;
 
-    const res = await fetch("/api/translate", {
+  try {
+    const res = await fetch(TRANSLATE_API, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        text: el.innerText,
+        text: text.trim(),
         target: targetLang
       })
     });
 
     const data = await res.json();
-    el.innerText = data.translated_text;
+
+    return (
+      data.translated_text ||
+      data.translated ||
+      data.translation ||
+      data.text ||
+      text
+    );
+  } catch (err) {
+    console.error("Translation failed:", err);
+    return text;
   }
 }
 
-// toggle language
+async function translatePage(targetLang = "ur") {
+  const elements = document.querySelectorAll(
+    "h1, h2, h3, p, span, button, label, small"
+  );
+
+  for (const el of elements) {
+    const original = el.dataset.originalText || el.innerText.trim();
+
+    if (!original) continue;
+    if (original === "undefined") continue;
+    if (el.closest("script")) continue;
+
+    el.dataset.originalText = original;
+
+    const translated = await translateOneText(original, targetLang);
+    el.innerText = translated || original;
+  }
+}
+
+function resetToEnglish() {
+  document.querySelectorAll("[data-original-text]").forEach((el) => {
+    el.innerText = el.dataset.originalText;
+  });
+}
+
 function toggleLanguage() {
   const current = localStorage.getItem("lang") || "en";
 
@@ -30,13 +63,14 @@ function toggleLanguage() {
     translatePage("ur");
   } else {
     localStorage.setItem("lang", "en");
-    location.reload(); // reset to English
+    resetToEnglish();
   }
 }
 
 window.addEventListener("load", () => {
-  const lang = localStorage.getItem("lang");
+  const lang = localStorage.getItem("lang") || "en";
+
   if (lang === "ur") {
-    translatePage("ur");
+    setTimeout(() => translatePage("ur"), 500);
   }
 });
