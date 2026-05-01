@@ -1,6 +1,8 @@
 const API = "";
 
-document.getElementById("resetPasswordBtn")?.addEventListener("click", async () => {
+document.getElementById("forgotPasswordForm")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
   const email = document.getElementById("resetEmail").value.trim();
   const newPassword = document.getElementById("resetPassword").value.trim();
 
@@ -11,9 +13,7 @@ document.getElementById("resetPasswordBtn")?.addEventListener("click", async () 
 
   const res = await fetch(`${API}/auth/reset-password`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       email,
       new_password: newPassword,
