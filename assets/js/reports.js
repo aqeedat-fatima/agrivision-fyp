@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ===============================
   // 🔐 AUTH HELPERS
   // ===============================
-  const API_BASE = `${window.location.protocol}//${window.location.hostname}:8001`;
+  const API_BASE = "";
 
   function safeJSON(v, fallback) {
     try {
