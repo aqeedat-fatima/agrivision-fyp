@@ -27,7 +27,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const sidebar = document.querySelector(".sidebar");
   const closeBtn = document.querySelector(".sidebar-close");
 
-  closeBtn?.addEventListener("click", () => {
-    sidebar?.classList.toggle("collapsed");
+  if (!sidebar || !closeBtn) return;
+
+  const savedSidebarState = localStorage.getItem("agrivision_sidebar");
+
+  if (savedSidebarState === "collapsed") {
+    sidebar.classList.add("collapsed");
+  }
+
+  closeBtn.addEventListener("click", () => {
+    sidebar.classList.toggle("collapsed");
+
+    if (sidebar.classList.contains("collapsed")) {
+      localStorage.setItem("agrivision_sidebar", "collapsed");
+    } else {
+      localStorage.setItem("agrivision_sidebar", "expanded");
+    }
   });
 });
