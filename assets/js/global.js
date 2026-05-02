@@ -82,7 +82,10 @@ const I18N = {
     email_verification: "Email Verification",
     email_verification_desc: "Verify users before enabling account changes.",
     coming_soon: "Coming Soon",
-    planned: "Planned"
+    planned: "Planned",
+
+    crop_stage_detection: "Crop Stage Detection",
+    crop_stage_desc: "Detect the current growth stage of your cotton crop using AI-powered image analysis.",
   },
   ur: {
     dashboard: "ڈیش بورڈ",
@@ -167,7 +170,10 @@ const I18N = {
     email_verification: "ای میل تصدیق",
     email_verification_desc: "اکاؤنٹ تبدیلیوں سے پہلے صارفین کی تصدیق کریں۔",
     coming_soon: "جلد آرہا ہے",
-    planned: "منصوبہ بند"
+    planned: "منصوبہ بند",
+    
+    crop_stage_detection: "فصل کے مرحلے کی شناخت",
+    crop_stage_desc: "اے آئی کی مدد سے تصویر کے ذریعے کپاس کی فصل کے موجودہ مرحلے کی شناخت کریں۔",
   }
 };
 
