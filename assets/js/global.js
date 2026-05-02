@@ -85,7 +85,7 @@ const I18N = {
     planned: "Planned",
 
     crop_stage_detection: "Crop Stage Detection",
-    crop_stage_desc: "Detect the current growth stage of your cotton.",
+    crop_stage_desc: "Detect the current growth stage of crop.",
   },
   ur: {
     dashboard: "ڈیش بورڈ",
