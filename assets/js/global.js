@@ -85,7 +85,7 @@ const I18N = {
     planned: "Planned",
 
     crop_stage_detection: "Crop Stage Detection",
-    crop_stage_desc: "Detect the current growth stage of your cotton crop using AI-powered image analysis.",
+    crop_stage_desc: "Detect the current growth stage of your cotton crop.",
   },
   ur: {
     dashboard: "ڈیش بورڈ",
@@ -171,9 +171,9 @@ const I18N = {
     email_verification_desc: "اکاؤنٹ تبدیلیوں سے پہلے صارفین کی تصدیق کریں۔",
     coming_soon: "جلد آرہا ہے",
     planned: "منصوبہ بند",
-    
+
     crop_stage_detection: "فصل کے مرحلے کی شناخت",
-    crop_stage_desc: "اے آئی کی مدد سے تصویر کے ذریعے کپاس کی فصل کے موجودہ مرحلے کی شناخت کریں۔",
+    crop_stage_desc: "کپاس کی فصل کے موجودہ مرحلے کی شناخت کریں۔",
   }
 };
 
