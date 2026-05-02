@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AgriVision — Crop Stage Detection</title>
+
+  <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+  <link rel="stylesheet" href="assets/css/crop-stage.css">
+</head>
+
+<body class="cs-body">
+  <div class="cs-topbar">
+    <div class="cs-left">
+      <a class="cs-back" href="dashboard.html">←</a>
+
+      <div class="cs-headings">
+        <div class="cs-title">Crop Stage Detection</div>
+        <div class="cs-sub">Estimate cotton growth stage using sowing date and satellite vegetation support.</div>
+      </div>
+    </div>
+
+    <div class="cs-actions">
+      <select class="cs-select" id="farmSelect">
+        <option value="">Select Farm</option>
+      </select>
+
+      <button class="cs-btn cs-btn-primary" id="btnDetectStage">Detect Stage</button>
+    </div>
+  </div>
+
+  <div class="cs-grid">
+    <div class="cs-card">
+      <div class="cs-card-title">Farm & Crop Details</div>
+      <div class="cs-muted">Select a saved farm and enter the sowing date of your cotton crop.</div>
+
+      <div class="cs-field">
+        <label>Planting / Sowing Date</label>
+        <input type="date" id="sowingDate">
+      </div>
+
+      <div class="cs-info-box">
+        <strong>How it works:</strong>
+        <p>
+          The system estimates crop stage from crop age, then uses NDVI, EVI and NDMI
+          as supporting signals when real satellite data is available.
+        </p>
+      </div>
+
+      <div class="cs-stage-list">
+        <div class="cs-stage-item" data-stage="Seedling">🌱 Seedling</div>
+        <div class="cs-stage-item" data-stage="Vegetative">🌿 Vegetative</div>
+        <div class="cs-stage-item" data-stage="Budding">🌾 Budding</div>
+        <div class="cs-stage-item" data-stage="Flowering">🌸 Flowering</div>
+        <div class="cs-stage-item" data-stage="Boll Formation">🟢 Boll Formation</div>
+        <div class="cs-stage-item" data-stage="Harvesting">🌾 Harvesting</div>
+      </div>
+    </div>
+
+    <div class="cs-card">
+      <div class="cs-row cs-row-between">
+        <div class="cs-card-title">Stage Result</div>
+        <div class="cs-badge cs-ready" id="stageBadge">Ready</div>
+      </div>
+
+      <div class="cs-result-main">
+        <div class="cs-result-icon" id="stageIcon">🌱</div>
+        <div>
+          <div class="cs-result-label">Estimated Stage</div>
+          <div class="cs-result-stage" id="stageName">—</div>
+        </div>
+      </div>
+
+      <div class="cs-kpis">
+        <div class="cs-kpi">
+          <div class="cs-kpi-label">Crop Age</div>
+          <div class="cs-kpi-val" id="cropAge">—</div>
+          <div class="cs-kpi-sub">Days after sowing</div>
+        </div>
+
+        <div class="cs-kpi">
+          <div class="cs-kpi-label">Confidence</div>
+          <div class="cs-kpi-val" id="confidence">—</div>
+          <div class="cs-kpi-sub">Based on available data</div>
+        </div>
+
+        <div class="cs-kpi">
+          <div class="cs-kpi-label">Satellite Support</div>
+          <div class="cs-kpi-val" id="satSupport">—</div>
+          <div class="cs-kpi-sub">NDVI/EVI/NDMI check</div>
+        </div>
+      </div>
+
+      <div class="cs-satellite-box">
+        <div class="cs-card-title small-title">Satellite Indicators</div>
+
+        <div class="cs-mini-grid">
+          <div>
+            <span>NDVI</span>
+            <strong id="ndviVal">—</strong>
+          </div>
+          <div>
+            <span>EVI</span>
+            <strong id="eviVal">—</strong>
+          </div>
+          <div>
+            <span>NDMI</span>
+            <strong id="ndmiVal">—</strong>
+          </div>
+        </div>
+
+        <p id="satNote">Satellite data will be used when available. If fallback data is detected, stage will rely mainly on sowing date.</p>
+      </div>
+
+      <div class="cs-advice">
+        <div class="cs-advice-title">Recommendation</div>
+        <ul id="recommendationList">
+          <li>Select a farm and sowing date, then click Detect Stage.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/global.js"></script>
+  <script src="assets/js/theme.js"></script>
+  <script src="assets/js/crop-stage.js"></script>
+</body>
+</html>

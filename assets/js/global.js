@@ -86,6 +86,8 @@ const I18N = {
 
     crop_stage_detection: "Crop Stage Detection",
     crop_stage_desc: "Detect the current growth stage of crop.",
+
+    crop_stage_nav: "Crop Stage",
   },
   ur: {
     dashboard: "ڈیش بورڈ",
@@ -174,6 +176,8 @@ const I18N = {
 
     crop_stage_detection: "فصل کے مرحلے کی شناخت",
     crop_stage_desc: "کپاس کی فصل کے موجودہ مرحلے کی شناخت کریں۔",
+
+    crop_stage_nav: "فصل کا مرحلہ",
   }
 };
 

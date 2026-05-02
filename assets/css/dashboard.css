@@ -1325,3 +1325,18 @@ body.urdu-mode .sidebar-header .logo-subtitle {
   direction: ltr !important;
   text-align: left !important;
 }
+
+.cta-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.cta-card-link:hover {
+  text-decoration: none;
+  color: inherit;
+}
+
+.cta-card-link .cta-card {
+  cursor: pointer;
+}

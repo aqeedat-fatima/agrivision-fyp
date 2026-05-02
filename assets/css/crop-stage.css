@@ -1,0 +1,569 @@
+@import url('https://fonts.googleapis.com/css2?family=Arimo:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --bg: #f5f5f5;
+  --card: #ffffff;
+  --text: #28323f;
+  --muted: #6b7787;
+
+  --brand: #1b5e20;
+  --brand2: #2e7d32;
+
+  --good: #2e7d32;
+  --warn: #f0b429;
+  --bad: #d64545;
+
+  --shadow: 0 12px 35px rgba(17, 24, 17, .10);
+  --shadow2: 0 8px 18px rgba(17, 24, 17, .08);
+
+  --radius: 22px;
+  --radius2: 16px;
+
+  --border: rgba(40, 50, 63, 0.10);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body.cs-body {
+  margin: 0;
+  font-family: "Arimo", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-weight: 400;
+}
+
+/* ===== Topbar ===== */
+
+.cs-topbar {
+  width: calc(100% - 40px);
+  margin: 18px 20px 0;
+  padding: 14px 16px;
+
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .08);
+
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.cs-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 260px;
+}
+
+.cs-back {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #c3d8c8;
+  color: var(--brand);
+  text-decoration: none;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  font-weight: 600;
+  transition: transform .08s ease, box-shadow .15s ease, background .15s ease;
+}
+
+.cs-back:hover {
+  background: #ffffff;
+  color: var(--brand);
+  box-shadow: var(--shadow2);
+  transform: translateY(-1px);
+}
+
+.cs-headings {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cs-title {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: .1px;
+  color: var(--brand);
+}
+
+.cs-sub {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.cs-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cs-select {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: #fff;
+  font-weight: 600;
+  font-size: small;
+  color: var(--text);
+  min-width: 210px;
+  outline: none;
+}
+
+.cs-btn {
+  border: 1px solid rgba(27, 94, 32, .18);
+  padding: 10px 13px;
+  border-radius: 14px;
+  font-size: small;
+  font-weight: 500;
+  cursor: pointer;
+
+  background: rgba(27, 94, 32, .06);
+  color: var(--brand);
+
+  transition: transform .08s ease, box-shadow .15s ease, background .15s ease;
+}
+
+.cs-btn:hover {
+  box-shadow: var(--shadow2);
+  transform: translateY(-1px);
+  background: rgba(27, 94, 32, .09);
+}
+
+.cs-btn-primary {
+  border: 1px solid rgba(27, 94, 32, .22);
+  background: linear-gradient(135deg, var(--brand), var(--brand2));
+  color: #fff;
+  font-weight: 600;
+}
+
+.cs-btn-primary:hover {
+  background: linear-gradient(135deg, #174e1c, #2a742e);
+  color: #fff;
+}
+
+/* ===== Main Layout ===== */
+
+.cs-grid {
+  width: calc(100% - 40px);
+  margin: 14px 20px 18px;
+  padding: 0;
+
+  display: grid;
+  grid-template-columns: .9fr 1.1fr;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.cs-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .06);
+  padding: 18px;
+  height: 100%;
+}
+
+.cs-card-title {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 8px;
+  color: var(--brand);
+}
+
+.cs-card-title.small-title {
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.cs-muted {
+  color: var(--muted);
+  font-size: 12.5px;
+  margin-bottom: 10px;
+}
+
+/* ===== Form ===== */
+
+.cs-field {
+  margin-top: 18px;
+}
+
+.cs-field label {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.cs-field input {
+  width: 100%;
+  padding: 11px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  font-weight: 600;
+  font-size: small;
+  outline: none;
+  background: #fff;
+  color: var(--text);
+}
+
+.cs-field input:focus,
+.cs-select:focus {
+  border-color: rgba(27, 94, 32, .35);
+  box-shadow: 0 0 0 4px rgba(27, 94, 32, .08);
+}
+
+/* ===== Info Box ===== */
+
+.cs-info-box {
+  margin-top: 16px;
+  background: rgba(27, 94, 32, .05);
+  border: 1px solid rgba(27, 94, 32, .12);
+  border-radius: 16px;
+  padding: 12px;
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.55;
+}
+
+.cs-info-box strong {
+  font-weight: 600;
+  color: var(--brand);
+}
+
+.cs-info-box p {
+  margin: 6px 0 0;
+}
+
+/* ===== Stage List ===== */
+
+.cs-stage-list {
+  margin-top: 18px;
+  display: grid;
+  gap: 10px;
+}
+
+.cs-stage-item {
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  transition: transform .08s ease, box-shadow .15s ease, background .15s ease;
+}
+
+.cs-stage-item:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow2);
+}
+
+.cs-stage-item.active {
+  border-color: rgba(46, 125, 50, .35);
+  background: rgba(46, 125, 50, .08);
+  color: var(--brand);
+  font-weight: 600;
+  box-shadow: inset 4px 0 0 var(--brand2);
+}
+
+/* ===== Rows / Badge ===== */
+
+.cs-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cs-row-between {
+  justify-content: space-between;
+}
+
+.cs-badge {
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: .1px;
+  border: 1px solid var(--border);
+}
+
+.cs-ready {
+  background: rgba(107, 120, 107, .12);
+  color: var(--muted);
+}
+
+.cs-good {
+  background: rgba(46, 125, 50, .12);
+  color: var(--good);
+}
+
+.cs-warn {
+  background: rgba(240, 180, 41, .18);
+  color: #8a5c00;
+}
+
+.cs-bad {
+  background: rgba(214, 69, 69, .12);
+  color: var(--bad);
+}
+
+/* ===== Result Card ===== */
+
+.cs-result-main {
+  margin-top: 18px;
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(27, 94, 32, .05);
+  border: 1px solid rgba(27, 94, 32, .12);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.cs-result-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+  box-shadow: var(--shadow2);
+  flex-shrink: 0;
+}
+
+.cs-result-label {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.cs-result-stage {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--brand);
+  margin-top: 2px;
+}
+
+/* ===== KPI Cards ===== */
+
+.cs-kpis {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.cs-kpi {
+  background: #f7f8fa;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.cs-kpi-label {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.cs-kpi-val {
+  font-size: 18px;
+  font-weight: 500;
+  margin-top: 4px;
+  color: var(--text);
+}
+
+.cs-kpi-sub {
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-top: 5px;
+  font-weight: 600;
+}
+
+/* ===== Satellite Box ===== */
+
+.cs-satellite-box {
+  margin-top: 16px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  padding: 14px;
+  background: #fff;
+}
+
+.cs-mini-grid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.cs-mini-grid div {
+  border-radius: 14px;
+  padding: 12px;
+  background: #f7f8fa;
+  border: 1px solid var(--border);
+}
+
+.cs-mini-grid span {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.cs-mini-grid strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+#satNote {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+/* ===== Recommendation ===== */
+
+.cs-advice {
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(27, 94, 32, .05);
+  border: 1px solid rgba(27, 94, 32, .12);
+}
+
+.cs-advice-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--brand);
+  margin-bottom: 8px;
+}
+
+.cs-advice ul {
+  margin: 5px 0 0 18px;
+  padding: 0;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.cs-advice li {
+  margin: 5px 0;
+}
+
+/* ===== Urdu Mode ===== */
+
+body.urdu-mode .cs-sub,
+body.urdu-mode .cs-muted,
+body.urdu-mode .cs-info-box,
+body.urdu-mode .cs-advice,
+body.urdu-mode #satNote {
+  direction: rtl;
+  text-align: right;
+}
+
+/* ===== Responsive ===== */
+
+@media (max-width: 1000px) {
+  .cs-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .cs-topbar {
+    align-items: stretch;
+  }
+
+  .cs-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cs-select,
+  .cs-btn {
+    width: 100%;
+  }
+
+  .cs-kpis,
+  .cs-mini-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cs-result-stage {
+    font-size: 21px;
+  }
+}
+
+[data-theme="dark"] .cs-body {
+  background: #101711;
+  color: #e8f2e8;
+}
+
+[data-theme="dark"] .cs-topbar,
+[data-theme="dark"] .cs-card {
+  background: #162018;
+  border-color: rgba(255,255,255,.10);
+  box-shadow: 0 12px 35px rgba(0,0,0,.35);
+}
+
+[data-theme="dark"] .cs-title,
+[data-theme="dark"] .cs-card-title,
+[data-theme="dark"] .cs-result-stage {
+  color: #dff5df;
+}
+
+[data-theme="dark"] .cs-sub,
+[data-theme="dark"] .cs-muted,
+[data-theme="dark"] .cs-result-label,
+[data-theme="dark"] .cs-kpi-label,
+[data-theme="dark"] .cs-kpi-sub,
+[data-theme="dark"] #satNote {
+  color: #aab8aa;
+}
+
+[data-theme="dark"] .cs-select,
+[data-theme="dark"] .cs-field input,
+[data-theme="dark"] .cs-stage-item,
+[data-theme="dark"] .cs-kpi,
+[data-theme="dark"] .cs-satellite-box,
+[data-theme="dark"] .cs-mini-grid div {
+  background: #101711;
+  color: #e8f2e8;
+  border-color: rgba(255,255,255,.12);
+}
+
+[data-theme="dark"] .cs-result-main,
+[data-theme="dark"] .cs-info-box,
+[data-theme="dark"] .cs-advice {
+  background: rgba(46,125,50,.12);
+  border-color: rgba(46,125,50,.25);
+}
+
+[data-theme="dark"] .cs-kpi-val,
+[data-theme="dark"] .cs-mini-grid strong,
+[data-theme="dark"] .cs-advice ul,
+[data-theme="dark"] .cs-advice li {
+  color: #e8f2e8;
+}
+
+[data-theme="dark"] .cs-back {
+  background: #223326;
+  color: #dff5df;
+}
