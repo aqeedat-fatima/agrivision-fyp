@@ -17,90 +17,15 @@ const ndmiVal = document.getElementById("ndmiVal");
 const satNote = document.getElementById("satNote");
 const recommendationList = document.getElementById("recommendationList");
 
+let FARMS_CACHE = [];
+
 function getUserId() {
   try {
     const user = JSON.parse(localStorage.getItem("agrivision_user") || "{}");
-    return user.id || user.user_id || user.email || "demo-user";
+    return user.id || user.user_id || null;
   } catch {
-    return "demo-user";
+    return null;
   }
-}
-
-function getStageFromDays(days) {
-  if (days <= 15) {
-    return {
-      name: "Seedling",
-      icon: "🌱",
-      advice: [
-        "Ensure light and frequent irrigation.",
-        "Protect young seedlings from pests and early stress."
-      ]
-    };
-  }
-
-  if (days <= 35) {
-    return {
-      name: "Vegetative",
-      icon: "🌿",
-      advice: [
-        "Support strong leaf and stem growth with balanced nutrition.",
-        "Monitor weeds because competition is high in this stage."
-      ]
-    };
-  }
-
-  if (days <= 55) {
-    return {
-      name: "Budding",
-      icon: "🌾",
-      advice: [
-        "Monitor square formation carefully.",
-        "Check for sucking pests and early bollworm activity."
-      ]
-    };
-  }
-
-  if (days <= 80) {
-    return {
-      name: "Flowering",
-      icon: "🌸",
-      advice: [
-        "Maintain proper irrigation during flowering.",
-        "Monitor pest attacks because flowering is a sensitive stage."
-      ]
-    };
-  }
-
-  if (days <= 120) {
-    return {
-      name: "Boll Formation",
-      icon: "🟢",
-      advice: [
-        "Avoid water stress during boll development.",
-        "Monitor bollworm and nutrient deficiency symptoms."
-      ]
-    };
-  }
-
-  return {
-    name: "Harvesting",
-    icon: "🌾",
-    advice: [
-      "Prepare for picking when bolls are mature and open.",
-      "Avoid unnecessary irrigation close to harvesting."
-    ]
-  };
-}
-
-function calculateDaysAfterSowing(dateValue) {
-  const sowing = new Date(dateValue);
-  const today = new Date();
-
-  sowing.setHours(0, 0, 0, 0);
-  today.setHours(0, 0, 0, 0);
-
-  const diff = today - sowing;
-  return Math.floor(diff / (1000 * 60 * 60 * 24));
 }
 
 function highlightStage(stage) {
@@ -111,6 +36,7 @@ function highlightStage(stage) {
 
 function setRecommendations(items) {
   recommendationList.innerHTML = "";
+
   items.forEach((text) => {
     const li = document.createElement("li");
     li.textContent = text;
@@ -118,138 +44,79 @@ function setRecommendations(items) {
   });
 }
 
-function getMockSatelliteSupport(days) {
-  /*
-    Temporary frontend-only satellite support.
-
-    Later, replace this with latest real satellite run from DB/backend.
-    Keep fallback awareness in backend:
-    data_source: "real" or "fallback"
-  */
-
-  let ndvi = 0.28;
-  let evi = 0.20;
-  let ndmi = 0.05;
-
-  if (days <= 15) {
-    ndvi = 0.25;
-    evi = 0.18;
-    ndmi = 0.02;
-  } else if (days <= 35) {
-    ndvi = 0.48;
-    evi = 0.34;
-    ndmi = 0.12;
-  } else if (days <= 55) {
-    ndvi = 0.62;
-    evi = 0.44;
-    ndmi = 0.18;
-  } else if (days <= 80) {
-    ndvi = 0.72;
-    evi = 0.52;
-    ndmi = 0.22;
-  } else if (days <= 120) {
-    ndvi = 0.66;
-    evi = 0.47;
-    ndmi = 0.16;
-  } else {
-    ndvi = 0.42;
-    evi = 0.31;
-    ndmi = 0.06;
+function fmtValue(value) {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) {
+    return "—";
   }
 
-  return {
-    data_source: "demo",
-    ndvi,
-    evi,
-    ndmi
-  };
+  return Number(value).toFixed(2);
 }
 
-function evaluateSatelliteConsistency(stage, sat) {
-  if (!sat || sat.data_source === "fallback") {
-    return {
-      confidenceText: "Medium",
-      supportText: "Limited",
-      note: "Satellite data is unavailable or fallback-based, so stage is estimated mainly from sowing date."
-    };
-  }
+function setLoadingState(isLoading) {
+  btnDetectStage.disabled = isLoading;
+  btnDetectStage.textContent = isLoading ? "Detecting..." : "Detect Stage";
+}
 
-  if (sat.data_source === "demo") {
-    return {
-      confidenceText: "Medium",
-      supportText: "Demo",
-      note: "Demo satellite indicators are shown for frontend testing. Later this will use real NDVI, EVI and NDMI from the selected farm."
-    };
-  }
+function getSelectedFarm() {
+  const selectedId = farmSelect.value;
 
-  if (sat.ndvi < 0.3) {
-    return {
-      confidenceText: "Low",
-      supportText: "Weak",
-      note: "Vegetation appears weaker than expected for this stage. Field inspection is recommended."
-    };
-  }
-
-  if (sat.ndvi >= 0.55) {
-    return {
-      confidenceText: "High",
-      supportText: "Strong",
-      note: "Satellite vegetation indicators support the estimated crop stage."
-    };
-  }
-
-  return {
-    confidenceText: "Medium",
-    supportText: "Moderate",
-    note: "Satellite indicators partially support the estimated crop stage."
-  };
+  return FARMS_CACHE.find((farm) => String(farm.id) === String(selectedId));
 }
 
 async function loadFarms() {
   farmSelect.innerHTML = `<option value="">Select Farm</option>`;
 
-  try {
-    const userId = getUserId();
+  const userId = getUserId();
 
+  if (!userId) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  try {
     const res = await fetch(`${API_BASE}/db/farms`, {
       headers: {
-        "X-User-Id": userId
+        "X-User-Id": String(userId)
       }
     });
 
-    if (!res.ok) throw new Error("Could not load farms");
+    if (!res.ok) {
+      throw new Error("Could not load farms");
+    }
 
     const farms = await res.json();
 
-    if (!Array.isArray(farms) || farms.length === 0) {
+    FARMS_CACHE = Array.isArray(farms) ? farms : [];
+
+    if (!FARMS_CACHE.length) {
       farmSelect.innerHTML = `<option value="">No saved farms found</option>`;
       return;
     }
 
-    farms.forEach((farm, index) => {
+    FARMS_CACHE.forEach((farm, index) => {
       const option = document.createElement("option");
-      option.value = farm.id || farm.farm_id || index;
+      option.value = farm.id;
       option.textContent = farm.name || farm.farm_name || `Farm ${index + 1}`;
       farmSelect.appendChild(option);
     });
   } catch (err) {
-    console.warn("Farm loading failed, using demo farms:", err);
-
-    ["Demo Farm 1", "Demo Farm 2"].forEach((name, index) => {
-      const option = document.createElement("option");
-      option.value = `demo-${index + 1}`;
-      option.textContent = name;
-      farmSelect.appendChild(option);
-    });
+    console.error("Farm loading failed:", err);
+    farmSelect.innerHTML = `<option value="">Could not load farms</option>`;
   }
 }
 
-function detectStage() {
-  const selectedFarm = farmSelect.value;
+async function detectStage() {
+  const userId = getUserId();
+  const selectedFarm = getSelectedFarm();
   const dateValue = sowingDate.value;
 
+  if (!userId) {
+    window.location.href = "login.html";
+    return;
+  }
+
   if (!selectedFarm) {
-    alert("Please select a farm first.");
+    alert("Please select a saved farm first.");
     return;
   }
 
@@ -258,45 +125,64 @@ function detectStage() {
     return;
   }
 
-  const days = calculateDaysAfterSowing(dateValue);
+  setLoadingState(true);
 
-  if (days < 0) {
-    alert("Sowing date cannot be in the future.");
-    return;
+  try {
+    const res = await fetch(`${API_BASE}/crop-stage/detect`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-User-Id": String(userId)
+      },
+      body: JSON.stringify({
+        farm_id: selectedFarm.id,
+        farm_name: selectedFarm.name || selectedFarm.farm_name || "Farm",
+        sowing_date: dateValue
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.detail || "Crop stage detection failed");
+    }
+
+    stageName.textContent = data.stage || "—";
+    stageIcon.textContent = data.icon || "🌱";
+    cropAge.textContent = `${data.crop_age_days} days`;
+    confidence.textContent = data.confidence || "—";
+    satSupport.textContent = data.satellite_support || "—";
+
+    ndviVal.textContent = fmtValue(data.satellite?.ndvi);
+    eviVal.textContent = fmtValue(data.satellite?.evi);
+    ndmiVal.textContent = fmtValue(data.satellite?.ndmi);
+
+    satNote.textContent =
+      data.satellite_note ||
+      "Stage estimated from sowing date and available satellite support.";
+
+    stageBadge.textContent = "Detected";
+
+    if (data.confidence === "High") {
+      stageBadge.className = "cs-badge cs-good";
+    } else if (data.confidence === "Low") {
+      stageBadge.className = "cs-badge cs-bad";
+    } else {
+      stageBadge.className = "cs-badge cs-warn";
+    }
+
+    highlightStage(data.stage);
+    setRecommendations(data.recommendations || []);
+  } catch (err) {
+    console.error(err);
+
+    stageBadge.textContent = "Error";
+    stageBadge.className = "cs-badge cs-bad";
+
+    alert(err.message || "Crop stage detection failed.");
+  } finally {
+    setLoadingState(false);
   }
-
-  const stage = getStageFromDays(days);
-
-  /*
-    Later:
-    replace getMockSatelliteSupport(days) with latest saved satellite run
-    for selected farm from backend.
-  */
-  const sat = getMockSatelliteSupport(days);
-  const evaluation = evaluateSatelliteConsistency(stage.name, sat);
-
-  stageName.textContent = stage.name;
-  stageIcon.textContent = stage.icon;
-  cropAge.textContent = `${days} days`;
-  confidence.textContent = evaluation.confidenceText;
-  satSupport.textContent = evaluation.supportText;
-
-  ndviVal.textContent = sat.ndvi.toFixed(2);
-  eviVal.textContent = sat.evi.toFixed(2);
-  ndmiVal.textContent = sat.ndmi.toFixed(2);
-  satNote.textContent = evaluation.note;
-
-  stageBadge.textContent = "Detected";
-  stageBadge.className = "cs-badge cs-good";
-
-  highlightStage(stage.name);
-
-  const finalAdvice = [
-    `Estimated cotton stage is ${stage.name} based on ${days} days after sowing.`,
-    ...stage.advice
-  ];
-
-  setRecommendations(finalAdvice);
 }
 
 btnDetectStage.addEventListener("click", detectStage);
