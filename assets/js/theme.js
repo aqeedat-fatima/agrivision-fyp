@@ -2,18 +2,31 @@
   const root = document.documentElement;
   const savedTheme = localStorage.getItem("agrivision_theme") || "light";
 
+  function getText(key, fallback) {
+    if (typeof t === "function") return t(key);
+    return fallback;
+  }
+
+  function updateThemeLabel(theme) {
+    document.querySelectorAll(".theme-toggle-text").forEach((el) => {
+      el.textContent =
+        theme === "dark"
+          ? getText("light_mode", "Light Mode")
+          : getText("dark_mode", "Dark Mode");
+    });
+  }
+
   function applyTheme(theme) {
     root.setAttribute("data-theme", theme);
     localStorage.setItem("agrivision_theme", theme);
-
-    document.querySelectorAll(".theme-toggle-text").forEach((el) => {
-      el.textContent = theme === "dark" ? "Light Mode" : "Dark Mode";
-    });
+    updateThemeLabel(theme);
   }
 
   applyTheme(savedTheme);
 
   document.addEventListener("DOMContentLoaded", () => {
+    applyTheme(localStorage.getItem("agrivision_theme") || "light");
+
     document.querySelectorAll(".theme-toggle").forEach((btn) => {
       btn.addEventListener("click", () => {
         const current = root.getAttribute("data-theme") || "light";
@@ -38,10 +51,9 @@ document.addEventListener("DOMContentLoaded", () => {
   closeBtn.addEventListener("click", () => {
     sidebar.classList.toggle("collapsed");
 
-    if (sidebar.classList.contains("collapsed")) {
-      localStorage.setItem("agrivision_sidebar", "collapsed");
-    } else {
-      localStorage.setItem("agrivision_sidebar", "expanded");
-    }
+    localStorage.setItem(
+      "agrivision_sidebar",
+      sidebar.classList.contains("collapsed") ? "collapsed" : "expanded"
+    );
   });
 });

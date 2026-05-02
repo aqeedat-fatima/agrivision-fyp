@@ -31,34 +31,34 @@
     <nav class="nav-main">
       <a href="dashboard.html" class="nav-item">
         <img src="assets/icons/dashboard2.png" alt="" class="nav-icon">
-        <span>Dashboard</span>
+        <span data-i18n="dashboard">Dashboard</span>
       </a>
 
       <a href="#" class="nav-item">
         <img src="assets/icons/health.png" alt="" class="nav-icon">
-        <span>Crop Health</span>
+        <span data-i18n="crop_health">Crop Health</span>
       </a>
 
       <a href="farm-monitor.html" class="nav-item">
         <img src="assets/icons/satellite.png" alt="" class="nav-icon">
-        <span>Satellite Insights</span>
+        <span data-i18n="satellite_insights">Satellite Insights</span>
       </a>
 
       <a href="#" class="nav-item">
         <img src="assets/icons/ndvi.png" alt="" class="nav-icon">
-        <span>NDVI Trends</span>
+        <span data-i18n="ndvi_trends">NDVI Trends</span>
       </a>
 
-      <div class="nav-section-label">Monitoring</div>
+      <div class="nav-section-label" data-i18n="monitoring">Monitoring</div>
 
       <a href="#" class="nav-item">
         <img src="assets/icons/alerts.png" alt="" class="nav-icon">
-        <span>Alerts</span>
+        <span data-i18n="alerts">Alerts</span>
       </a>
 
       <a href="reports.html" class="nav-item">
         <img src="assets/icons/reports.png" alt="" class="nav-icon">
-        <span>Reports</span>
+        <span data-i18n="reports">Reports</span>
       </a>
     </nav>
 
@@ -66,7 +66,7 @@
       <a href="settings.html" class="nav-item active">
         <div class="nav-pill">
           <img src="assets/icons/settings.png" alt="" class="nav-icon">
-          <span>Settings</span>
+          <span data-i18n="settings">Settings</span>
         </div>
       </a>
     </div>
@@ -75,14 +75,16 @@
   <main class="main">
     <header class="topbar">
       <div class="topbar-left">
-        <h1 class="page-title">Settings</h1>
-        <p class="page-subtitle">Manage your AgriVision account, security, and preferences.</p>
+        <h1 class="page-title" data-i18n="settings_title">Settings</h1>
+        <p class="page-subtitle" data-i18n="settings_subtitle">
+          Manage your AgriVision account, security, and preferences.
+        </p>
       </div>
 
       <div class="topbar-right">
-        <button class="top-pill top-lang">
+        <button class="top-pill top-lang" type="button" onclick="toggleLanguage()">
           <img src="assets/icons/globe.png" alt="" class="top-icon">
-          <span>EN</span>
+          <span id="lang-label">EN</span>
         </button>
 
         <button class="top-icon-btn" aria-label="Notifications">
@@ -101,7 +103,7 @@
         </div>
 
         <button class="top-pill top-cycle theme-toggle" type="button">
-          <span class="theme-toggle-text">Dark Mode</span>
+          <span class="theme-toggle-text" data-i18n="dark_mode" data-i18n="dark_mode">Dark Mode</span>
           <img src="assets/icons/dropdown.png" alt="" class="top-icon sm">
         </button>
       </div>
@@ -111,17 +113,12 @@
 
       <div class="settings-head">
         <div>
-          <div class="settings-title">System Settings</div>
-          <div class="settings-subtitle">Update profile details, secure your account, and configure field preferences.</div>
+          <div class="settings-title" data-i18n="system_settings">System Settings</div>
+          <div class="settings-subtitle" data-i18n="system_settings_desc">
+            Update profile details, secure your account, and configure field preferences.
+          </div>
         </div>
       </div>
-
-      <!-- <div class="settings-tabs">
-        <button class="settings-tab active" type="button">Profile</button>
-        <button class="settings-tab" type="button">Security</button>
-        <button class="settings-tab" type="button">Preferences</button>
-        <button class="settings-tab" type="button">Integrations</button>
-      </div> -->
 
       <section class="settings-grid">
 
@@ -131,36 +128,36 @@
               <img src="assets/icons/person.png" alt="">
             </div>
             <div>
-              <h2>Profile Information</h2>
-              <p>Keep your AgriVision account details up to date.</p>
+              <h2 data-i18n="profile_information">Profile Information</h2>
+              <p data-i18n="profile_information_desc">Keep your AgriVision account details up to date.</p>
             </div>
           </div>
 
           <div class="form-grid">
             <label>
-              Full Name
+              <span data-i18n="full_name">Full Name</span>
               <input id="fullName" placeholder="Full Name">
             </label>
 
             <label>
-              Email Address
+              <span data-i18n="email_address">Email Address</span>
               <input id="email" placeholder="Email">
             </label>
 
             <label>
-              Phone Number
+              <span data-i18n="phone_number">Phone Number</span>
               <input id="phone" placeholder="+92 300 0000000">
             </label>
 
             <label>
-              Location
+              <span data-i18n="location">Location</span>
               <input id="location" placeholder="City / Province">
             </label>
           </div>
 
           <div class="panel-actions">
-            <button class="btn-secondary" type="button">Cancel</button>
-            <button class="btn-primary" id="saveProfile" type="button">Save Profile</button>
+            <button class="btn-secondary" type="button" data-i18n="cancel">Cancel</button>
+            <button class="btn-primary" id="saveProfile" type="button" data-i18n="save_profile">Save Profile</button>
           </div>
         </article>
 
@@ -170,24 +167,26 @@
               <img src="assets/icons/warning.png" alt="">
             </div>
             <div>
-              <h2>Account Security</h2>
-              <p>Change your password safely.</p>
+              <h2 data-i18n="account_security">Account Security</h2>
+              <p data-i18n="account_security_desc">Change your password safely.</p>
             </div>
           </div>
 
           <label>
-            Current Password
+            <span data-i18n="current_password">Current Password</span>
             <input type="password" id="currentPassword" placeholder="Current Password">
           </label>
 
           <label>
-            New Password
+            <span data-i18n="new_password">New Password</span>
             <input type="password" id="newPassword" placeholder="New Password">
           </label>
 
-          <button class="btn-primary full" id="changePassword" type="button">Update Password</button>
+          <button class="btn-primary full" id="changePassword" type="button" data-i18n="update_password">
+            Update Password
+          </button>
 
-          <div class="security-note">
+          <div class="security-note" data-i18n="forgot_password_note">
             Forgot your password? Reset flow and email verification can be added in the next phase.
           </div>
         </article>
@@ -198,13 +197,13 @@
               <img src="assets/icons/globe.png" alt="">
             </div>
             <div>
-              <h2>App Preferences</h2>
-              <p>Customize how data appears in your dashboard.</p>
+              <h2 data-i18n="app_preferences">App Preferences</h2>
+              <p data-i18n="app_preferences_desc">Customize how data appears in your dashboard.</p>
             </div>
           </div>
 
           <label>
-            Language
+            <span data-i18n="language">Language</span>
             <select>
               <option>English</option>
               <option>Urdu</option>
@@ -212,7 +211,7 @@
           </label>
 
           <label>
-            Area Unit
+            <span data-i18n="area_unit">Area Unit</span>
             <select>
               <option>Acres</option>
               <option>Hectares</option>
@@ -220,7 +219,7 @@
           </label>
 
           <label>
-            Default Crop
+            <span data-i18n="default_crop">Default Crop</span>
             <select>
               <option>Cotton</option>
             </select>
@@ -233,33 +232,33 @@
               <img src="assets/icons/satellite.png" alt="">
             </div>
             <div>
-              <h2>Sign-in & Integrations</h2>
-              <p>Connect external sign-in providers for faster access.</p>
+              <h2 data-i18n="signin_integrations">Sign-in & Integrations</h2>
+              <p data-i18n="signin_integrations_desc">Connect external sign-in providers for faster access.</p>
             </div>
           </div>
 
           <div class="integration-row">
             <div>
-              <strong>Google Sign-in</strong>
-              <span>Allow users to sign in with Google.</span>
+              <strong data-i18n="google_signin">Google Sign-in</strong>
+              <span data-i18n="google_signin_desc">Allow users to sign in with Google.</span>
             </div>
-            <button class="btn-outline" type="button">Coming Soon</button>
+            <button class="btn-outline" type="button" data-i18n="coming_soon">Coming Soon</button>
           </div>
 
           <div class="integration-row">
             <div>
-              <strong>Apple Sign-in</strong>
-              <span>Optional future integration for Apple accounts.</span>
+              <strong data-i18n="apple_signin">Apple Sign-in</strong>
+              <span data-i18n="apple_signin_desc">Optional future integration for Apple accounts.</span>
             </div>
-            <button class="btn-outline" type="button">Coming Soon</button>
+            <button class="btn-outline" type="button" data-i18n="coming_soon">Coming Soon</button>
           </div>
 
           <div class="integration-row">
             <div>
-              <strong>Email Verification</strong>
-              <span>Verify users before enabling account changes.</span>
+              <strong data-i18n="email_verification">Email Verification</strong>
+              <span data-i18n="email_verification_desc">Verify users before enabling account changes.</span>
             </div>
-            <button class="btn-outline" type="button">Planned</button>
+            <button class="btn-outline" type="button" data-i18n="planned">Planned</button>
           </div>
         </article>
 
@@ -269,7 +268,7 @@
 </div>
 
 <script src="assets/js/settings.js"></script>
-<script src="assets/js/theme.js"></script>
 <script src="assets/js/global.js"></script>
+<script src="assets/js/theme.js"></script>
 </body>
 </html>

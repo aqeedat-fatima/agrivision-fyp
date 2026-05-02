@@ -35,36 +35,36 @@
     <nav class="nav-main">
       <a href="dashboard.html" class="nav-item">
         <img src="assets/icons/dashboard2.png" alt="" class="nav-icon">
-        <span>Dashboard</span>
+        <span data-i18n="dashboard">Dashboard</span>
       </a>
 
       <a href="#" class="nav-item">
         <img src="assets/icons/health.png" alt="" class="nav-icon">
-        <span>Crop Health</span>
+        <span data-i18n="crop_health">Crop Health</span>
       </a>
 
       <a href="#" class="nav-item">
         <img src="assets/icons/satellite.png" alt="" class="nav-icon">
-        <span>Satellite Insights</span>
+        <span data-i18n="satellite_insights">Satellite Insights</span>
       </a>
 
       <a href="#" class="nav-item">
         <img src="assets/icons/ndvi.png" alt="" class="nav-icon">
-        <span>NDVI Trends</span>
+        <span data-i18n="ndvi_trends">NDVI Trends</span>
       </a>
 
-      <div class="nav-section-label">Monitoring</div>
+      <div class="nav-section-label" data-i18n="monitoring">Monitoring</div>
 
       <a href="#" class="nav-item">
         <img src="assets/icons/alerts.png" alt="" class="nav-icon">
-        <span>Alerts</span>
+        <span data-i18n="alerts">Alerts</span>
       </a>
 
       <!-- ✅ ACTIVE -->
       <a href="reports.html" class="nav-item active">
         <div class="nav-pill">
           <img src="assets/icons/reports.png" alt="" class="nav-icon">
-          <span>Reports</span>
+          <span data-i18n="reports">Reports</span>
         </div>
       </a>
     </nav>
@@ -72,7 +72,7 @@
     <div class="nav-bottom">
       <a href="settings.html" class="nav-item">
         <img src="assets/icons/settings.png" alt="" class="nav-icon">
-        <span>Settings</span>
+        <span data-i18n="settings">Settings</span>
       </a>
     </div>
   </aside>
@@ -83,14 +83,14 @@
     <!-- Topbar (same style) -->
     <header class="topbar">
       <div class="topbar-left">
-        <h1 class="page-title">Reports</h1>
-        <p class="page-subtitle">Welcome Back, Administrator</p>
+        <h1 class="page-title" data-i18n="reports_title">Reports</h1>
+        <p class="page-subtitle" data-i18n="reports_subtitle">Welcome Back, Administrator</p>
       </div>
 
       <div class="topbar-right">
-        <button class="top-pill top-lang">
+        <button class="top-pill top-lang" type="button" onclick="toggleLanguage()">
           <img src="assets/icons/globe.png" alt="" class="top-icon">
-          <span>EN</span>
+          <span id="lang-label">EN</span>
         </button>
 
         <button class="top-icon-btn" aria-label="Notifications">
@@ -130,8 +130,8 @@
       <!-- Title row -->
       <div class="reports-head">
         <div>
-          <div class="reports-title">Reports & Analytics</div>
-          <div class="reports-subtitle">
+          <div class="reports-title" data-i18n="reports_analytics">Reports & Analytics</div>
+          <div class="reports-subtitle" data-i18n="reports_analytics_desc">
             Generate satellite and AI-powered reports for crop health and field conditions.
           </div>
         </div>
@@ -146,11 +146,11 @@
               <img src="assets/icons/calendar.png" alt="">
             </div>
             <div class="rep-gen-text">
-              <div class="rep-gen-title">Crop Health Summary</div>
-              <div class="rep-gen-desc">Overview of crop conditions, detected diseases, and NDVI trends for this month.</div>
+              <div class="rep-gen-title" data-i18n="crop_health_summary">Crop Health Summary</div>
+              <div class="rep-gen-desc" data-i18n="crop_health_summary_desc">Overview of crop conditions, detected diseases, and NDVI trends for this month.</div>
               <button class="rep-gen-btn" type="button">
                 <img src="assets/icons/download.png" class="rep-gen-btn-ic" alt="">
-                Generate
+                <span data-i18n="generate">Generate</span>
               </button>
             </div>
           </div>
@@ -163,11 +163,11 @@
               <img src="assets/icons/trend.png" alt="">
             </div>
             <div class="rep-gen-text">
-              <div class="rep-gen-title">Satellite Insights Report</div>
-              <div class="rep-gen-desc">Satellite-derived vegetation indices (NDVI, NDWI, SAVI) with temporal graphs.</div>
+              <div class="rep-gen-title" data-i18n="satellite_report">Satellite Insights Report</div>
+              <div class="rep-gen-desc" data-i18n="satellite_report_desc">Satellite-derived vegetation indices (NDVI, NDWI, SAVI) with temporal graphs.</div>
               <button class="rep-gen-btn" type="button">
                 <img src="assets/icons/download.png" class="rep-gen-btn-ic" alt="">
-                Generate
+                <span data-i18n="generate">Generate</span>
               </button>
             </div>
           </div>
@@ -180,11 +180,11 @@
               <img src="assets/icons/AI.png" alt="">
             </div>
             <div class="rep-gen-text">
-              <div class="rep-gen-title">AI Model Report</div>
-              <div class="rep-gen-desc">Summary of model predictions, training stats, and Grad-CAM results.</div>
+              <div class="rep-gen-title" data-i18n="ai_model_report">AI Model Report</div>
+              <div class="rep-gen-desc" data-i18n="ai_model_report_desc">Summary of model predictions, training stats, and Grad-CAM results.</div>
               <button class="rep-gen-btn" type="button">
                 <img src="assets/icons/download.png" class="rep-gen-btn-ic" alt="">
-                Generate
+                <span data-i18n="generate">Generate</span>
               </button>
             </div>
           </div>
@@ -264,30 +264,30 @@
       <section class="reports-panel">
       <div class="reports-panel-head">
         <div>
-          <div class="reports-panel-title">Report History</div>
-          <div class="reports-panel-sub">Saved reports from your disease detections.</div>
+          <div class="reports-panel-title" data-i18n="report_history">Report History</div>
+          <div class="reports-panel-sub" data-i18n="report_history_desc">Saved reports from your disease detections.</div>
         </div>
       </div>
 
       <div class="rep-list" id="reportHistoryList"></div>
 
       <div class="rep-history is-hidden" id="reportHistoryEmpty">
-        <div class="rep-history-empty">No reports yet. Run a disease detection to generate your first report.</div>
+        <div class="rep-history-empty" data-i18n="no_reports">No reports yet. Run a disease detection to generate your first report.</div>
       </div>
     </section>
 
     <section class="reports-panel">
       <div class="reports-panel-head">
         <div>
-          <div class="reports-panel-title">Satellite Report History</div>
-          <div class="reports-panel-sub">Saved monitoring runs from Farm Monitoring (NDVI/NDMI/EVI).</div>
+          <div class="reports-panel-title" data-i18n="sat_report_history">Satellite Report History</div>
+          <div class="reports-panel-sub" data-i18n="sat_report_history_desc">Saved monitoring runs from Farm Monitoring (NDVI/NDMI/EVI).</div>
         </div>
       </div>
 
       <div class="rep-list" id="satReportHistoryList"></div>
 
       <div class="rep-history is-hidden" id="satReportHistoryEmpty">
-        <div class="rep-history-empty">No satellite reports yet. Save a result from Farm Monitoring first.</div>
+        <div class="rep-history-empty" data-i18n="no_sat_reports">No satellite reports yet. Save a result from Farm Monitoring first.</div>
       </div>
     </section>
 
@@ -297,8 +297,8 @@
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="assets/js/reports.js?v=3"></script>
-<script src="assets/js/theme.js"></script>
 <script src="assets/js/global.js"></script>
+<script src="assets/js/theme.js"></script>
 
 </body>
 </html>

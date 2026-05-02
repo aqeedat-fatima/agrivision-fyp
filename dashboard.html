@@ -33,42 +33,42 @@
       <a href="#" class="nav-item active">
         <div class="nav-pill">
           <img src="assets/icons/dashboard.png" alt="" class="nav-icon">
-          <span>Dashboard</span>
+          <span data-i18n="dashboard">Dashboard</span>
         </div>
       </a>
 
       <a href="#" class="nav-item">
         <img src="assets/icons/health.png" alt="" class="nav-icon">
-        <span>Crop Health</span>
+        <span data-i18n="crop_health">Crop Health</span>
       </a>
 
       <a href="#" class="nav-item">
         <img src="assets/icons/satellite.png" alt="" class="nav-icon">
-        <span>Satellite Insights</span>
+        <span data-i18n="satellite_insights">Satellite Insights</span>
       </a>
 
       <a href="#" class="nav-item">
         <img src="assets/icons/ndvi.png" alt="" class="nav-icon">
-        <span>NDVI Trends</span>
+        <span data-i18n="ndvi_trends">NDVI Trends</span>
       </a>
 
       <div class="nav-section-label">Monitoring</div>
 
       <a href="#" class="nav-item">
         <img src="assets/icons/alerts.png" alt="" class="nav-icon">
-        <span>Alerts</span>
+        <span data-i18n="alerts">Alerts</span>
       </a>
 
       <a href="reports.html" class="nav-item">
         <img src="assets/icons/reports.png" alt="" class="nav-icon">
-        <span>Reports</span>
+        <span data-i18n="reports">Reports</span>
       </a>
     </nav>
 
     <div class="nav-bottom">
       <a href="settings.html" class="nav-item">
         <img src="assets/icons/settings.png" alt="" class="nav-icon">
-        <span>Settings</span>
+        <span data-i18n="settings">Settings</span>
       </a>
     </div>
   </aside>
@@ -77,8 +77,8 @@
   <main class="main">
     <header class="topbar">
       <div class="topbar-left">
-        <h1 class="page-title">AgriVision Crop Health Dashboard</h1>
-        <p class="page-subtitle">AI + Satellite-Powered Field Insights</p>
+        <h1 class="page-title" data-i18n="dashboard_title">AgriVision Crop Health Dashboard</h1>
+        <p class="page-subtitle" data-i18n="dashboard_subtitle">AI + Satellite-Powered Field Insights</p>
       </div>
 
       <div class="topbar-right">
@@ -104,7 +104,7 @@
 
 
         <button class="top-pill top-cycle theme-toggle" type="button">
-          <span class="theme-toggle-text">Dark Mode</span>
+          <span class="theme-toggle-text" data-i18n="dark_mode">Dark Mode</span>
           <img src="assets/icons/dropdown.png" alt="" class="top-icon sm">
         </button>
       </div>
@@ -116,7 +116,7 @@
       <section class="row row-kpis">
         <article class="kpi-card" id="cardFields">
           <div class="kpi-header">
-            <span class="kpi-label">Fields Monitored</span>
+            <span class="kpi-label" data-i18n="fields_monitored">Fields Monitored</span>
             <div class="kpi-icon kpi-icon-leaf">
               <img src="assets/icons/leaf.png" alt="">
             </div>
@@ -131,7 +131,7 @@
 
         <article class="kpi-card" id="cardAvgNdvi">
           <div class="kpi-header">
-            <span class="kpi-label">Average NDVI Value</span>
+            <span class="kpi-label" data-i18n="avg_ndvi">Average NDVI Value</span>
             <div class="kpi-icon kpi-icon-chart">
               <img src="assets/icons/chart.png" alt="">
             </div>
@@ -145,7 +145,7 @@
 
         <article class="kpi-card">
           <div class="kpi-header">
-            <span class="kpi-label">Detected Diseases</span>
+            <span class="kpi-label" data-i18n="detected_diseases">Detected Diseases</span>
             <div class="kpi-icon kpi-icon-heart">
               <img src="assets/icons/heart.png" alt="">
             </div>
@@ -159,7 +159,7 @@
 
         <article class="kpi-card" id="cardAlerts">
           <div class="kpi-header">
-            <span class="kpi-label">Active Alerts</span>
+            <span class="kpi-label" data-i18n="active_alerts">Active Alerts</span>
             <div class="kpi-icon kpi-icon-alert">
               <img src="assets/icons/warning.png" alt="">
             </div>
@@ -179,8 +179,8 @@
               <img src="assets/icons/upload.png" alt="">
             </div>
             <div>
-              <h3 class="cta-title">Upload Crop Image</h3>
-              <p class="cta-text">Upload a leaf photo for disease detection.</p>
+              <h3 class="cta-title" data-i18n="upload_crop_image">Upload Crop Image</h3>
+              <p class="cta-text" data-i18n="upload_crop_desc">Upload a leaf photo for disease detection.</p>
             </div>
           </div>
         </article>
@@ -193,8 +193,8 @@
               <img src="assets/icons/satellite-overview.png" alt="">
             </div>
             <div>
-              <h3 class="cta-title">Satellite Overview</h3>
-              <p class="cta-text">Check the latest Sentinel-2 imagery.</p>
+              <h3 class="cta-title" data-i18n="satellite_overview">Satellite Overview</h3>
+              <p class="cta-text" data-i18n="satellite_desc">Check the latest Sentinel-2 imagery.</p>
             </div>
           </div>
         </article>
@@ -205,8 +205,8 @@
               <img src="assets/icons/stress.png" alt="">
             </div>
             <div>
-              <h3 class="cta-title">Recent Stress Alerts</h3>
-              <p class="cta-text">2 new NDVI drops detected this week.</p>
+              <h3 class="cta-title" data-i18n="recent_stress_alerts">Recent Stress Alerts</h3>
+              <p class="cta-text" data-i18n="recent_stress_desc">2 new NDVI drops detected this week.</p>
             </div>
           </div>
         </article>
@@ -218,8 +218,8 @@
 
           <div class="result-header">
             <div>
-              <h3 class="result-title">Latest Leaf Diagnosis</h3>
-              <p class="result-subtitle">
+              <h3 class="result-title" data-i18n="latest_leaf_title">Latest Leaf Diagnosis</h3>
+              <p class="result-subtitle" data-i18n="latest_leaf_desc">
                 Upload a cotton leaf photo to view AI-powered disease insights,
                 symptoms, and treatment tips.
               </p>
@@ -228,7 +228,7 @@
           </div>
 
           <div class="result-body" id="resultEmptyState">
-            <p class="result-empty-text">
+            <p class="result-empty-text" data-i18n="latest_leaf_empty">
               No image analyzed yet. Click <strong>Upload Crop Image</strong> above,
               choose a clear leaf photo, and we’ll show the diagnosis here.
             </p>

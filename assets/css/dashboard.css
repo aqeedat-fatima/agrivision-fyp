@@ -1206,3 +1206,122 @@ html[data-theme="dark"] .sidebar.collapsed .sidebar-close::before {
 html[data-theme="dark"] .sidebar.collapsed .nav-bottom {
   border-top-color: #374151;
 }
+
+body.urdu-mode {
+  direction: ltr;
+}
+
+body.urdu-mode .page-title,
+body.urdu-mode .page-subtitle,
+body.urdu-mode .kpi-label,
+body.urdu-mode .cta-title,
+body.urdu-mode .cta-text,
+body.urdu-mode .result-title,
+body.urdu-mode .result-subtitle,
+body.urdu-mode .result-empty-text,
+body.urdu-mode .nav-item span,
+body.urdu-mode .logo-subtitle {
+  direction: rtl;
+  text-align: right;
+}
+
+body.urdu-mode .kpi-card {
+  direction: rtl;
+}
+
+body.urdu-mode .kpi-icon {
+  left: 18px;
+  right: auto;
+}
+
+body.urdu-mode .cta-left {
+  direction: rtl;
+}
+
+body.urdu-mode .result-header {
+  direction: rtl;
+}
+
+body.urdu-mode .kpi-card {
+  direction: rtl;
+  text-align: right;
+}
+
+body.urdu-mode .kpi-icon {
+  left: 18px;
+  right: auto;
+}
+
+body.urdu-mode .kpi-meta {
+  justify-content: flex-start;
+}
+
+body.urdu-mode .cta-left {
+  direction: rtl;
+  text-align: right;
+  flex-direction: row-reverse;
+}
+
+body.urdu-mode .cta-icon {
+  margin-left: 0;
+}
+
+body.urdu-mode .cta-row {
+  direction: rtl;
+}
+
+body.urdu-mode .cta-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+body.urdu-mode .cta-card {
+  text-align: right;
+}
+
+body.urdu-mode .cta-row {
+  justify-content: stretch;
+}
+
+body.urdu-mode .cta-card {
+  width: 100%;
+}
+
+body.urdu-mode .cta-left {
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+}
+
+body.urdu-mode .row-cta {
+  direction: rtl;
+}
+
+body.urdu-mode .row-cta .cta-card {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+body.urdu-mode .row-cta .cta-left {
+  width: 100%;
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+  align-items: center;
+  text-align: right;
+}
+
+body.urdu-mode .row-cta .cta-left > div:last-child {
+  flex: 1;
+  text-align: right;
+}
+
+body.urdu-mode .row-cta .cta-title,
+body.urdu-mode .row-cta .cta-text {
+  text-align: right;
+  max-width: none;
+}
+
+body.urdu-mode .sidebar-header .logo-subtitle {
+  direction: ltr !important;
+  text-align: left !important;
+}
