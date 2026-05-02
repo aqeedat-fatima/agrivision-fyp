@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       USER.full_name || USER.fullName || USER.name || USER.email || "Profile";
   }
 
-  const API_BASE = "http://localhost:8001";
+  const API_BASE = "";
 
   // ✅ Keep only UI preference in localStorage
   const ACTIVE_FARM_KEY = "agrivision_active_farm_id";

@@ -1,4 +1,4 @@
-const API_BASE = localStorage.getItem("agrivision_api_base") || "http://127.0.0.1:8001";
+const API_BASE = "";
 
 const farmSelect = document.getElementById("farmSelect");
 const sowingDate = document.getElementById("sowingDate");
