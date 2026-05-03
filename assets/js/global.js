@@ -152,6 +152,13 @@ const I18N = {
     ready: "Ready",
     based_on_available_data: "Based on available data",
     satellite_check: "NDVI/EVI/NDMI check",
+
+    diag_conf: "Diagnosis Confidence",
+    decision_rel: "Decision Reliability",
+    fig1_title: "Figure 1 · Model confidence score",
+    fig1_desc: "Shows how confident the AI is in the predicted disease based on learned patterns.",
+    fig2_title: "Figure 2 · Confidence drivers",
+    fig2_desc: "Combines model confidence, image quality, and prediction agreement to assess reliability",
   },
   ur: {
     dashboard: "ڈیش بورڈ",
@@ -306,6 +313,13 @@ const I18N = {
     ready: "تیار",
     based_on_available_data: "دستیاب ڈیٹا کی بنیاد پر",
     satellite_check: "NDVI/EVI/NDMI جانچ",
+
+    diag_conf: "تشخیص کا اعتماد",
+    decision_rel: "فیصلے کی بھروسہ مندی",
+    fig1_title: "شکل 1 · ماڈل کے اعتماد کا اسکور",
+    fig1_desc: "یہ ظاہر کرتا ہے کہ ماڈل پیشگوئی میں کتنا پُراعتماد ہے۔",
+    fig2_title: "شکل 2 · اعتماد کے عوامل",
+    fig2_desc: "یہ ماڈل کے اعتماد، تصویر کے معیار اور اتفاق کو ملا کر بھروسہ مندی ظاہر کرتا ہے",
   }
 };
 
