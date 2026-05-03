@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ===============================
   // ✅ DB + KPI HELPERS
   // ===============================
-  const API_BASE = "";
+  const API_BASE = "http://127.0.0.1:8001";
   const API_URL = `${API_BASE}/predict`;
 
   const authHeaders = () => ({ "X-User-Id": String(USER.id) });
@@ -1161,6 +1161,93 @@ document.addEventListener("DOMContentLoaded", () => {
     resultMain?.classList.remove("is-hidden");
   };
 
+  const showInvalidImageResult = (data) => {
+    LAST_DIAGNOSIS = null;
+
+    showResult();
+    setStatus("Invalid image", "busy");
+
+    if (resultDiseaseName) {
+      resultDiseaseName.textContent = "Invalid Image";
+    }
+
+    if (resultConfidenceChip) {
+      resultConfidenceChip.textContent =
+        `Cotton confidence: ${data?.validator?.cotton_confidence ?? 0}%`;
+    }
+
+    if (resultSymptoms) {
+      resultSymptoms.textContent =
+        data?.message || "Please upload a clear cotton leaf image.";
+    }
+
+    if (recOrganic) {
+      recOrganic.innerHTML = `
+        <div class="rec-title-row">
+          <h4 class="rec-h">What to upload</h4>
+        </div>
+        <div class="rec-body">
+          <p class="rec-paragraph">Upload a clear cotton leaf image only.</p>
+        </div>
+      `;
+    }
+
+    if (recChemical) {
+      recChemical.innerHTML = `
+        <div class="rec-title-row">
+          <h4 class="rec-h">Tips</h4>
+        </div>
+        <div class="rec-body">
+          <p class="rec-paragraph">Avoid faces, screenshots, soil, or other leaves.</p>
+        </div>
+      `;
+    }
+
+    if (resultCause) {
+      resultCause.textContent =
+        `Validator classified this as ${data?.validator?.predicted_class || "non-cotton"}.`;
+    }
+
+    fillPreventionList([
+      "Upload a cotton leaf close-up.",
+      "Keep the leaf centered.",
+      "Use good lighting."
+    ]);
+
+    setRiskUI({
+      risk: "low",
+      diseaseName: "Invalid Image",
+      labelKey: "healthy_leaf",
+      confidencePct: "—",
+      bullets: [
+        "Image rejected by cotton validator.",
+        "Upload a cotton leaf to continue."
+      ]
+    });
+
+    if (explainText) {
+      explainText.textContent = "⚠️ Image rejected (not cotton).";
+    }
+
+    if (explainTip) {
+      explainTip.innerHTML = `
+        <div class="explain-minihead">Why rejected</div>
+        <div class="explain-sub">
+          This image is not recognized as a cotton leaf.
+        </div>
+      `;
+    }
+
+    if (pillQuality) pillQuality.textContent = "Photo quality: —";
+    if (pillAgreement) pillAgreement.textContent = "Agreement: —";
+
+    updateCharts({
+      confidenceRaw: 0,
+      qualityScore: 0,
+      agreementScore: 0
+    });
+  };
+
   showEmptyState();
 
   // --------------------------
@@ -1561,7 +1648,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await response.json();
       console.log("Prediction result:", data);
 
-      const labelRaw = data.pred_label || data.label || "unknown";
+      // ✅ HANDLE INVALID IMAGE FIRST
+      if (data.valid === false) {
+        showInvalidImageResult(data);
+        return;
+      }
+
+      const labelRaw = data.pred_label || data.label || data.disease_name || "unknown";
       const confidenceRaw = typeof data.confidence === "number" ? data.confidence : null;
       const probabilities = Array.isArray(data.probabilities) ? data.probabilities : null;
 
