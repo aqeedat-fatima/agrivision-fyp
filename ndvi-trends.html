@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AgriVision — NDVI Trends</title>
+
+  <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+  <link rel="stylesheet" href="assets/css/ndvi-trends.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="nt-body">
+
+  <div class="nt-topbar">
+    <div class="nt-left">
+      <a class="nt-back" href="dashboard.html">←</a>
+
+      <div>
+        <div class="nt-title" data-i18n="ndvi_trends">NDVI Trends</div>
+        <div class="nt-sub">
+          View NDVI, EVI, and NDMI trends across all monitored farms.
+        </div>
+      </div>
+    </div>
+
+    <div class="nt-actions">
+      <button class="nt-btn" type="button" onclick="toggleLanguage()">
+        <span id="lang-label">EN</span>
+      </button>
+      <button class="nt-btn nt-btn-primary" id="btnRefresh">Refresh</button>
+    </div>
+  </div>
+
+  <main class="nt-page">
+
+    <section class="nt-kpis">
+      <div class="nt-kpi">
+        <div class="nt-kpi-label">Fields Included</div>
+        <div class="nt-kpi-value" id="kpiFields">—</div>
+        <div class="nt-kpi-sub">Monitored farms</div>
+      </div>
+
+      <div class="nt-kpi">
+        <div class="nt-kpi-label">Latest Avg NDVI</div>
+        <div class="nt-kpi-value" id="kpiNdvi">—</div>
+        <div class="nt-kpi-sub">Vegetation health</div>
+      </div>
+
+      <div class="nt-kpi">
+        <div class="nt-kpi-label">Latest Avg EVI</div>
+        <div class="nt-kpi-value" id="kpiEvi">—</div>
+        <div class="nt-kpi-sub">Enhanced vegetation</div>
+      </div>
+
+      <div class="nt-kpi">
+        <div class="nt-kpi-label">Latest Avg NDMI</div>
+        <div class="nt-kpi-value" id="kpiNdmi">—</div>
+        <div class="nt-kpi-sub">Moisture signal</div>
+      </div>
+    </section>
+
+    <section class="nt-info" id="emptyState">
+      <strong>No trend data yet.</strong>
+      <p>
+        Run satellite monitoring from the Farm Monitoring page first. Saved satellite results will appear here.
+      </p>
+      <a href="farm-monitor.html">Go to Farm Monitoring</a>
+    </section>
+
+    <section class="nt-grid" id="chartsGrid">
+      <article class="nt-card">
+        <div class="nt-card-head">
+          <div>
+            <h3>NDVI Trend</h3>
+            <p>Vegetation greenness across monitored fields.</p>
+          </div>
+          <span class="nt-pill">NDVI</span>
+        </div>
+        <div class="nt-chart-wrap">
+          <canvas id="ndviChart"></canvas>
+        </div>
+      </article>
+
+      <article class="nt-card">
+        <div class="nt-card-head">
+          <div>
+            <h3>EVI Trend</h3>
+            <p>Enhanced vegetation signal, useful under dense canopy.</p>
+          </div>
+          <span class="nt-pill">EVI</span>
+        </div>
+        <div class="nt-chart-wrap">
+          <canvas id="eviChart"></canvas>
+        </div>
+      </article>
+
+      <article class="nt-card nt-card-wide">
+        <div class="nt-card-head">
+          <div>
+            <h3>NDMI Trend</h3>
+            <p>Moisture stress signal across fields.</p>
+          </div>
+          <span class="nt-pill">NDMI</span>
+        </div>
+        <div class="nt-chart-wrap">
+          <canvas id="ndmiChart"></canvas>
+        </div>
+      </article>
+    </section>
+
+  </main>
+
+  <script src="assets/js/global.js"></script>
+  <script src="assets/js/theme.js"></script>
+  <script src="assets/js/ndvi-trends.js"></script>
+</body>
+</html>
