@@ -327,8 +327,15 @@ function applyLanguage() {
 
 function toggleLanguage() {
   const current = localStorage.getItem("agrivision_lang") || "en";
-  localStorage.setItem("agrivision_lang", current === "en" ? "ur" : "en");
+  const next = current === "en" ? "ur" : "en";
+
+  localStorage.setItem("agrivision_lang", next);
   applyLanguage();
+
+  // 🔥 notify other scripts (like dashboard.js)
+  window.dispatchEvent(new CustomEvent("agrivision:languageChanged", {
+    detail: { lang: next }
+  }));
 }
 
 document.addEventListener("DOMContentLoaded", applyLanguage);

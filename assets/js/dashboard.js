@@ -1361,6 +1361,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const labelKey = getLabelKey(labelRaw);
       const base = getDiseaseBase(labelKey);
 
+      LAST_DIAGNOSIS = {
+        labelKey,
+        confidencePct
+      };
+
       // ✅ KPI cards are DB-driven now, so refresh them after a diseased detection
       if (labelKey !== "healthy_leaf") {
         refreshDashboardKPIs();
