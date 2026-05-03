@@ -981,7 +981,7 @@ document.addEventListener("DOMContentLoaded", () => {
       bullets
     });
 
-    const lang = getLang();
+    
     const rt = RISK_TEXT[lang];
 
     // Badge translation
