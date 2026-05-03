@@ -159,6 +159,9 @@ const I18N = {
     fig1_desc: "Shows how confident the AI is in the predicted disease based on learned patterns.",
     fig2_title: "Figure 2 · Confidence drivers",
     fig2_desc: "Combines model confidence, image quality, and prediction agreement to assess reliability",
+
+    crop_disease_alert: "Crop Disease Alert",
+    view_reports: "View Detailed Health Reports",
   },
   ur: {
     dashboard: "ڈیش بورڈ",
@@ -320,6 +323,9 @@ const I18N = {
     fig1_desc: "یہ ظاہر کرتا ہے کہ ماڈل پیشگوئی میں کتنا پُراعتماد ہے۔",
     fig2_title: "شکل 2 · اعتماد کے عوامل",
     fig2_desc: "یہ ماڈل کے اعتماد، تصویر کے معیار اور اتفاق کو ملا کر بھروسہ مندی ظاہر کرتا ہے",
+
+    crop_disease_alert: "فصل کی بیماری کی اطلاع",
+    view_reports: "تفصیلی رپورٹ دیکھیں",
   }
 };
 
