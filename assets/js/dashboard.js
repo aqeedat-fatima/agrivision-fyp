@@ -101,6 +101,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const recOrganic = document.getElementById("recOrganic");
   const recChemical = document.getElementById("recChemical");
 
+  let LAST_DIAGNOSIS = null;
+
   // ===== Right Column UI (Risk template) =====
   const riskCard = document.getElementById("riskCard");
   const riskIcon = document.getElementById("riskIcon");
@@ -817,6 +819,37 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
+  function rerenderDiagnosisLanguage() {
+    if (!LAST_DIAGNOSIS) return;
+
+    const base = getDiseaseBase(LAST_DIAGNOSIS.labelKey);
+
+    if (resultDiseaseName) resultDiseaseName.textContent = base.name;
+
+    if (resultConfidenceChip) {
+      resultConfidenceChip.textContent = `${T("model_confidence")} ${LAST_DIAGNOSIS.confidencePct}`;
+    }
+
+    if (resultSymptoms) resultSymptoms.textContent = base.symptoms || "";
+
+    const ICON_ORGANIC = "assets/icons/organic.png";
+    const ICON_CHEMICAL = "assets/icons/chemical.png";
+
+    if (recOrganic) {
+      recOrganic.innerHTML = renderRecBlock(T("organic"), ICON_ORGANIC, [base.organic || "—"]);
+    }
+
+    if (recChemical) {
+      recChemical.innerHTML = renderRecBlock(T("chemical"), ICON_CHEMICAL, [base.chemical || "—"]);
+    }
+
+    if (resultCause) resultCause.textContent = base.cause || "";
+
+    fillPreventionList(base.prevention);
+  }
+
+  window.addEventListener("agrivision:languageChanged", rerenderDiagnosisLanguage);
+
   // --------------------------
   // RIGHT PANEL (Risk Alert)
   // --------------------------
@@ -1367,6 +1400,11 @@ document.addEventListener("DOMContentLoaded", () => {
         refreshDashboardKPIs();
       }
       const confidencePct = confidenceRaw != null ? `${(confidenceRaw * 100).toFixed(1)}%` : "—%";
+
+      LAST_DIAGNOSIS = {
+        labelKey,
+        confidencePct
+      };
 
       const agreementFromProbs = computeAgreementFromProbabilities(probabilities);
       const agreementScore =

@@ -332,7 +332,6 @@ function toggleLanguage() {
   localStorage.setItem("agrivision_lang", next);
   applyLanguage();
 
-  // 🔥 notify other scripts (like dashboard.js)
   window.dispatchEvent(new CustomEvent("agrivision:languageChanged", {
     detail: { lang: next }
   }));
