@@ -1287,11 +1287,19 @@ document.addEventListener("DOMContentLoaded", () => {
     riskCard.classList.remove("status-high", "status-med", "status-low");
     riskCard.classList.add(risk === "high" ? "status-high" : risk === "med" ? "status-med" : "status-low");
 
-    if (riskTitle) riskTitle.textContent = "Crop Disease Alert";
+    if (riskTitle) {
+      riskTitle.textContent =
+        getLang() === "ur" ? "فصل کی بیماری کی اطلاع" : "Crop Disease Alert";
+    }
 
     const isHealthy = labelKey === "healthy_leaf";
     if (riskCount) riskCount.textContent = isHealthy ? "0" : "1";
-    if (riskDiseaseName) riskDiseaseName.textContent = isHealthy ? "No Disease" : diseaseName;
+    if (riskDiseaseName) {
+      riskDiseaseName.textContent =
+        isHealthy
+          ? (getLang() === "ur" ? "کوئی بیماری نہیں" : "No Disease")
+          : diseaseName;
+    }
     if (riskIcon) riskIcon.textContent = isHealthy ? "✓" : "!";
 
     if (riskBadge) {
