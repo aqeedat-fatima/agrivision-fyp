@@ -495,6 +495,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Render KPIs on load
   refreshDashboardKPIs();
   renderDiseasesMoM();
+  loadLastCropStageKPI();
 
   // ==========================================================
   // optional thumbnail helper for PDF / history
@@ -1691,3 +1692,35 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
+function loadLastCropStageKPI() {
+  const data = localStorage.getItem("last_crop_stage");
+  if (!data) return;
+
+  const parsed = JSON.parse(data);
+
+  const valueEl = document.getElementById("lastStageValue");
+  const subEl = document.getElementById("lastStageSub");
+
+  if (!valueEl || !subEl) return;
+
+  const icons = {
+    Seedling: "🌱",
+    Vegetative: "🌿",
+    Budding: "🌾",
+    Flowering: "🌸",
+    "Boll Formation": "🟢",
+    Harvesting: "🌾"
+  };
+
+  valueEl.textContent = `${icons[parsed.stage] || ""} ${parsed.stage}`;
+
+  const daysAgo = Math.floor(
+    (Date.now() - new Date(parsed.date)) / (1000 * 60 * 60 * 24)
+  );
+
+  const timeText =
+    daysAgo === 0 ? "Today" : `${daysAgo} day${daysAgo > 1 ? "s" : ""} ago`;
+
+  subEl.textContent = `${parsed.farmName} • ${timeText}`;
+}

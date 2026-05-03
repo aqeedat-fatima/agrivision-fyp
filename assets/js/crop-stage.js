@@ -148,6 +148,13 @@ async function detectStage() {
     }
 
     stageName.textContent = data.stage || "—";
+    // ✅ Save last crop stage for dashboard KPI
+    localStorage.setItem("last_crop_stage", JSON.stringify({
+      stage: data.stage,
+      farmId: selectedFarm.id,
+      farmName: selectedFarm.name || selectedFarm.farm_name || "Farm",
+      date: new Date().toISOString()
+    }));
     stageIcon.textContent = data.icon || "🌱";
     cropAge.textContent = `${data.crop_age_days} days`;
     confidence.textContent = data.confidence || "—";

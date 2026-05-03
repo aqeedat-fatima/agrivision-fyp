@@ -42,7 +42,7 @@
         <span data-i18n="crop_stage_nav">Crop Stage</span>
       </a>
 
-      <a href="#" class="nav-item">
+      <a href="farm-monitor.html" class="nav-item">
         <img src="assets/icons/satellite.png" alt="" class="nav-icon">
         <span data-i18n="satellite_insights">Satellite Insights</span>
       </a>
@@ -159,14 +159,18 @@
 
         <article class="kpi-card" id="cardAlerts">
           <div class="kpi-header">
-            <span class="kpi-label" data-i18n="active_alerts">Active Alerts</span>
+            <span class="kpi-label">Last Crop Stage</span>
             <div class="kpi-icon kpi-icon-alert">
               <img src="assets/icons/warning.png" alt="">
             </div>
           </div>
-          <div class="kpi-value" id="kpiActiveAlerts">0</div>
+
+          <!-- ✅ CHANGE THIS ID -->
+          <div class="kpi-value" id="lastStageValue">—</div>
+
           <div class="kpi-meta">
-            <span class="kpi-tag kpi-tag-orange">High Stress Areas</span>
+            <!-- ✅ ADD THIS ID -->
+            <span class="kpi-tag kpi-tag-orange" id="lastStageSub">No data yet</span>
           </div>
         </article>
       </section>
