@@ -840,6 +840,50 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
+  const RISK_TEXT = {
+    en: {
+      high: "High Priority — Take Action",
+      med: "Medium Priority — Monitor Closely",
+      low: "Low Risk",
+
+      why: "Why it’s uncertain",
+      improve: "Improve accuracy",
+
+      bullets: {
+        monitor: "Monitor closely — confirm on multiple plants.",
+        airflow: "Improve airflow and avoid working in wet conditions.",
+        spray: "Avoid unnecessary spraying.",
+      },
+
+      tips: [
+        "Move closer so the leaf fills most of the frame.",
+        "Capture both front and back of the leaf.",
+        "Keep the leaf flat and centered; avoid motion blur."
+      ]
+    },
+
+    ur: {
+      high: "زیادہ ترجیح — فوری کارروائی کریں",
+      med: "درمیانی ترجیح — قریب سے نگرانی کریں",
+      low: "کم خطرہ",
+
+      why: "یہ غیر یقینی کیوں ہے",
+      improve: "درستگی بہتر کریں",
+
+      bullets: {
+        monitor: "قریب سے نگرانی کریں — مختلف پودوں پر تصدیق کریں۔",
+        airflow: "ہوا کی آمدورفت بہتر بنائیں اور گیلی حالت میں کام نہ کریں۔",
+        spray: "غیر ضروری سپرے سے پرہیز کریں۔",
+      },
+
+      tips: [
+        "تصویر قریب سے لیں تاکہ پتا واضح نظر آئے۔",
+        "پتے کے آگے اور پیچھے دونوں کی تصویر لیں۔",
+        "پتے کو سیدھا رکھیں اور دھندلاہٹ سے بچیں۔"
+      ]
+    }
+  };
+
   function getDiseaseBase(labelKey) {
     const en = DISEASE_BASE[labelKey] || DISEASE_BASE.healthy_leaf;
     if (getLang() !== "ur") return en;
@@ -936,6 +980,37 @@ document.addEventListener("DOMContentLoaded", () => {
       confidencePct: LAST_DIAGNOSIS.confidencePct,
       bullets
     });
+
+    const lang = getLang();
+    const rt = RISK_TEXT[lang];
+
+    // Badge translation
+    const riskBadge = document.getElementById("riskBadge");
+    if (riskBadge) {
+      if (risk === "high") riskBadge.textContent = rt.high;
+      else if (risk === "med") riskBadge.textContent = rt.med;
+      else riskBadge.textContent = rt.low;
+    }
+
+    // Sub text (optional simple version)
+    const riskSub = document.getElementById("riskSub");
+    if (riskSub) {
+      riskSub.textContent = rt.bullets.monitor;
+    }
+
+    // Bullets
+    const bulletsContainer = document.getElementById("riskBullets");
+    if (bulletsContainer) {
+      bulletsContainer.innerHTML = "";
+
+      const items = Object.values(rt.bullets);
+
+      items.forEach((b) => {
+        const li = document.createElement("li");
+        li.textContent = b;
+        bulletsContainer.appendChild(li);
+      });
+    }
   }
 
   window.addEventListener("agrivision:languageChanged", rerenderDiagnosisLanguage);
