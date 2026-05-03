@@ -1340,3 +1340,8 @@ body.urdu-mode .sidebar-header .logo-subtitle {
 .cta-card-link .cta-card {
   cursor: pointer;
 }
+
+.kpi-stage-small {
+  font-size: 20px;   /* try 18–22px depending on your design */
+  font-weight: 600;
+}
