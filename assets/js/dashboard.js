@@ -559,6 +559,22 @@ document.addEventListener("DOMContentLoaded", () => {
     "herbicide growth damage": "herbicide_growth_damage",
   };
 
+  const getLang = () => localStorage.getItem("agrivision_lang") || "en";
+
+  const diagnosisText = {
+    en: {
+      organic: "Organic Control",
+      chemical: "Chemical Control",
+      model_confidence: "Model confidence:",
+    },
+    ur: {
+      organic: "نامیاتی علاج",
+      chemical: "کیمیائی علاج",
+      model_confidence: "ماڈل کا اعتماد:",
+    }
+  };
+
+  const T = (key) => diagnosisText[getLang()]?.[key] || diagnosisText.en[key];
 
   // --------------------------
   // LEFT PANEL (Plantix-style LONG content)
@@ -690,6 +706,116 @@ document.addEventListener("DOMContentLoaded", () => {
       ],
     },
   };
+
+  const DISEASE_UR = {
+    healthy_leaf: {
+      name: "صحتمند پتہ",
+      symptoms: "پتے میں بیماری یا کیڑوں کے واضح آثار موجود نہیں۔ رنگ، شکل اور رگیں نارمل نظر آتی ہیں۔",
+      organic: "معمول کی فصل دیکھ بھال جاری رکھیں، متوازن کھاد، مناسب آبپاشی اور باقاعدہ معائنہ کریں۔",
+      chemical: "صحتمند پتے کے لیے کسی کیمیائی اسپرے کی ضرورت نہیں۔ غیر ضروری اسپرے فصل کو نقصان پہنچا سکتا ہے۔",
+      cause: "اس تصویر میں بیماری کی واضح علامات نہیں ملتیں۔ اگر کھیت میں دباؤ نظر آئے تو آبپاشی، غذائی کمی یا موسمی دباؤ چیک کریں۔",
+      prevention: [
+        "آبپاشی کو متوازن رکھیں۔",
+        "متوازن غذائیت برقرار رکھیں۔",
+        "کیڑوں اور بیماریوں کے لیے باقاعدہ معائنہ کریں۔",
+        "کھیت کے کناروں پر جڑی بوٹیاں کم رکھیں۔"
+      ]
+    },
+
+    bacterial_blight: {
+      name: "بیکٹیریل بلائٹ",
+      symptoms: "پتوں پر پانی جیسے دھبے بنتے ہیں جو بعد میں سیاہ یا بھورے ہو سکتے ہیں۔ نمی میں بیماری تیزی سے پھیل سکتی ہے۔",
+      organic: "پتوں پر نمی کم کریں، اوپر سے آبپاشی سے بچیں، متاثرہ پودوں کے قریب کام کرتے وقت احتیاط کریں۔",
+      chemical: "کاپر بیسڈ بیکٹیریسائڈ مقامی زرعی ہدایات کے مطابق استعمال کیا جا سکتا ہے۔",
+      cause: "یہ بیماری بیکٹیریا سے ہوتی ہے جو بارش، آبپاشی کے پانی، اوزاروں اور متاثرہ باقیات سے پھیلتا ہے۔",
+      prevention: [
+        "بیماری سے پاک بیج استعمال کریں۔",
+        "اوپر سے آبپاشی سے بچیں۔",
+        "فصل کی باقیات کو مناسب طریقے سے تلف کریں۔",
+        "بارش کے بعد کھیت کا معائنہ کریں۔"
+      ]
+    },
+
+    curl_virus: {
+      name: "لیف کرل وائرس",
+      symptoms: "نئے پتے مڑ جاتے ہیں، رگیں موٹی ہو سکتی ہیں اور پودا کمزور یا چھوٹا رہ سکتا ہے۔",
+      organic: "متاثرہ پودوں کو الگ کریں، جڑی بوٹیاں ختم کریں اور سفید مکھی کی نگرانی کریں۔",
+      chemical: "وائرس کا علاج نہیں، مگر سفید مکھی کو کنٹرول کرنے کے لیے مناسب کیڑے مار دوا استعمال کی جا سکتی ہے۔",
+      cause: "یہ وائرس عموماً سفید مکھی کے ذریعے پھیلتا ہے اور متبادل میزبان پودوں میں بھی رہ سکتا ہے۔",
+      prevention: [
+        "مزاحم اقسام استعمال کریں۔",
+        "سفید مکھی کی آبادی کو جلد کنٹرول کریں۔",
+        "جڑی بوٹیوں کو ختم کریں۔",
+        "کٹائی کے بعد رضاکار کپاس کے پودے ختم کریں۔"
+      ]
+    },
+
+    leaf_redding: {
+      name: "پتوں کا سرخ ہونا",
+      symptoms: "پتے سرخ یا جامنی رنگ اختیار کر سکتے ہیں، عموماً پرانے پتوں سے شروع ہوتا ہے۔",
+      organic: "آبپاشی، نکاسی آب اور غذائی توازن خاص طور پر پوٹاشیم کو چیک کریں۔",
+      chemical: "بغیر تصدیق کے اسپرے نہ کریں۔ غذائی کمی ثابت ہو تو مقامی سفارشات کے مطابق اصلاح کریں۔",
+      cause: "یہ عموماً غذائی کمی، پانی کے دباؤ، جڑوں کے مسئلے یا موسمی دباؤ سے ہوتا ہے۔",
+      prevention: [
+        "متوازن کھاد دیں۔",
+        "پانی کی کمی یا زیادتی سے بچیں۔",
+        "مٹی کی صحت بہتر رکھیں۔",
+        "متاثرہ حصوں کی نگرانی کریں۔"
+      ]
+    },
+
+    leaf_hopper_jassids: {
+      name: "جیسڈ / لیف ہاپر",
+      symptoms: "پتوں کے کنارے پیلے یا بھورے ہو سکتے ہیں اور پتے مڑ سکتے ہیں۔",
+      organic: "پتوں کی نچلی سطح چیک کریں، جڑی بوٹیاں کم کریں اور اضافی نائٹروجن سے بچیں۔",
+      chemical: "اگر آبادی حد سے زیادہ ہو تو مناسب کیڑے مار دوا استعمال کریں اور دوا بدل بدل کر استعمال کریں۔",
+      cause: "جیسڈ رس چوسنے والے کیڑے ہیں جو پتوں کو کمزور کرتے ہیں۔",
+      prevention: [
+        "ہفتہ وار معائنہ کریں۔",
+        "جڑی بوٹیاں کنٹرول کریں۔",
+        "متوازن کھاد استعمال کریں۔",
+        "کیڑے مار دوا صرف ضرورت پر استعمال کریں۔"
+      ]
+    },
+
+    herbicide_growth_damage: {
+      name: "ہربیسائڈ سے بڑھوتری کا نقصان",
+      symptoms: "نئے پتے مڑ سکتے ہیں، شکل خراب ہو سکتی ہے اور پودے کی بڑھوتری غیر معمولی ہو سکتی ہے۔",
+      organic: "اسپرے کی تاریخ، ہوا کا رخ اور اسپرے ٹریک چیک کریں۔ فصل کو مزید دباؤ سے بچائیں۔",
+      chemical: "اس کا براہ راست علاج نہیں۔ اضافی اسپرے سے گریز کریں۔",
+      cause: "یہ عموماً ہربیسائڈ ڈرفٹ، اوورلیپ یا ٹینک آلودگی سے ہوتا ہے۔",
+      prevention: [
+        "ہوا کے تیز رخ میں اسپرے نہ کریں۔",
+        "درست مقدار استعمال کریں۔",
+        "اسپرے مشین صاف رکھیں۔",
+        "حساس علاقوں کے قریب احتیاط کریں۔"
+      ]
+    },
+
+    leaf_variegation: {
+      name: "پتوں کی رنگت میں فرق",
+      symptoms: "پتے پر ہلکے اور گہرے رنگ کے دھبے یا غیر یکساں رنگت ظاہر ہو سکتی ہے۔",
+      organic: "دیکھیں کہ مسئلہ چند پودوں تک محدود ہے یا پھیل رہا ہے۔ کیڑوں، غذائی کمی اور آبپاشی کا جائزہ لیں۔",
+      chemical: "وجہ واضح ہونے سے پہلے اسپرے نہ کریں۔ اگر کیڑے موجود ہوں تو حد کے مطابق کنٹرول کریں۔",
+      cause: "یہ غذائی کمی، فزیولوجیکل دباؤ، کیڑوں یا انفیکشن سے ہو سکتا ہے۔",
+      prevention: [
+        "متوازن غذائیت رکھیں۔",
+        "آبپاشی مسلسل رکھیں۔",
+        "کیڑوں کی نگرانی کریں۔",
+        "نئی بڑھوتری کو مانیٹر کریں۔"
+      ]
+    }
+  };
+
+  function getDiseaseBase(labelKey) {
+    const en = DISEASE_BASE[labelKey] || DISEASE_BASE.healthy_leaf;
+    if (getLang() !== "ur") return en;
+
+    return {
+      ...en,
+      ...(DISEASE_UR[labelKey] || DISEASE_UR.healthy_leaf)
+    };
+  }
 
   // --------------------------
   // RIGHT PANEL (Risk Alert)
@@ -1233,7 +1359,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const probabilities = Array.isArray(data.probabilities) ? data.probabilities : null;
 
       const labelKey = getLabelKey(labelRaw);
-      const base = DISEASE_BASE[labelKey] || DISEASE_BASE.healthy_leaf;
+      const base = getDiseaseBase(labelKey);
 
       // ✅ KPI cards are DB-driven now, so refresh them after a diseased detection
       if (labelKey !== "healthy_leaf") {
@@ -1266,13 +1392,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // LEFT: content
       if (resultDiseaseName) resultDiseaseName.textContent = base.name;
-      if (resultConfidenceChip) resultConfidenceChip.textContent = `Model confidence: ${confidencePct}`;
+      if (resultConfidenceChip) resultConfidenceChip.textContent = `${T("model_confidence")} ${confidencePct}`;
       if (resultSymptoms) resultSymptoms.textContent = base.symptoms || "";
 
       const ICON_ORGANIC = "assets/icons/organic.png";
       const ICON_CHEMICAL = "assets/icons/chemical.png";
-      if (recOrganic) recOrganic.innerHTML = renderRecBlock("Organic Control", ICON_ORGANIC, [base.organic || "—"]);
-      if (recChemical) recChemical.innerHTML = renderRecBlock("Chemical Control", ICON_CHEMICAL, [base.chemical || "—"]);
+      if (recOrganic) recOrganic.innerHTML = renderRecBlock(T("organic"), ICON_ORGANIC, [base.organic || "—"]);
+      if (recChemical) recChemical.innerHTML = renderRecBlock(T("chemical"), ICON_CHEMICAL, [base.chemical || "—"]);
 
       if (resultCause) resultCause.textContent = base.cause || "";
       fillPreventionList(base.prevention);
