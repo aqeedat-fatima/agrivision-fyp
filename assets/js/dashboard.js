@@ -106,7 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ===== Right Column UI (Risk template) =====
   const riskCard = document.getElementById("riskCard");
   const riskIcon = document.getElementById("riskIcon");
-  const riskTitle = document.getElementById("riskTitle");
+  const riskTitle = document.getElementById("alertTitle");
   const riskSub = document.getElementById("riskSub");
   const riskBullets = document.getElementById("riskBullets");
   const riskBadge = document.getElementById("riskBadge");
@@ -809,6 +809,37 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
+  const RIGHT_PANEL_TEXT = {
+    en: {
+      alert: "Crop Disease Alert",
+      detected: "Disease Detected",
+      decision_conf: "Decision Confidence",
+      usable: "Result is usable — verify in field",
+      reliable: "Result is reliable",
+      uncertain: "Why it’s uncertain",
+      improve: "Improve accuracy",
+      tips: [
+        "Move closer so the leaf fills most of the frame.",
+        "Capture both front and back of the leaf.",
+        "Keep the leaf flat and centered; avoid motion blur."
+      ]
+    },
+    ur: {
+      alert: "فصل کی بیماری کا انتباہ",
+      detected: "بیماری کی نشاندہی",
+      decision_conf: "فیصلے کا اعتماد",
+      usable: "نتیجہ قابل استعمال ہے — میدان میں تصدیق کریں",
+      reliable: "نتیجہ قابل اعتماد ہے",
+      uncertain: "یہ غیر یقینی کیوں ہے",
+      improve: "درستگی بہتر کریں",
+      tips: [
+        "قریب جائیں تاکہ پتا واضح نظر آئے۔",
+        "پتے کی دونوں طرف کی تصویر لیں۔",
+        "پتے کو سیدھا رکھیں اور حرکت سے بچیں۔"
+      ]
+    }
+  };
+
   function getDiseaseBase(labelKey) {
     const en = DISEASE_BASE[labelKey] || DISEASE_BASE.healthy_leaf;
     if (getLang() !== "ur") return en;
@@ -820,32 +851,91 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function rerenderDiagnosisLanguage() {
-    if (!LAST_DIAGNOSIS) return;
+  if (!LAST_DIAGNOSIS) return;
 
-    const base = getDiseaseBase(LAST_DIAGNOSIS.labelKey);
+  const base = getDiseaseBase(LAST_DIAGNOSIS.labelKey);
+  const lang = getLang();
+  const t = RIGHT_PANEL_TEXT[lang];
 
-    if (resultDiseaseName) resultDiseaseName.textContent = base.name;
+  // =====================
+  // LEFT SIDE (KEEP THIS)
+  // =====================
+  if (resultDiseaseName) resultDiseaseName.textContent = base.name;
 
-    if (resultConfidenceChip) {
-      resultConfidenceChip.textContent = `${T("model_confidence")} ${LAST_DIAGNOSIS.confidencePct}`;
-    }
+  if (resultConfidenceChip) {
+    resultConfidenceChip.textContent =
+      `${T("model_confidence")} ${LAST_DIAGNOSIS.confidencePct}`;
+  }
 
-    if (resultSymptoms) resultSymptoms.textContent = base.symptoms || "";
+  if (resultSymptoms) resultSymptoms.textContent = base.symptoms || "";
 
-    const ICON_ORGANIC = "assets/icons/organic.png";
-    const ICON_CHEMICAL = "assets/icons/chemical.png";
+  const ICON_ORGANIC = "assets/icons/organic.png";
+  const ICON_CHEMICAL = "assets/icons/chemical.png";
 
-    if (recOrganic) {
-      recOrganic.innerHTML = renderRecBlock(T("organic"), ICON_ORGANIC, [base.organic || "—"]);
-    }
+  if (recOrganic) {
+    recOrganic.innerHTML = renderRecBlock(
+      T("organic"),
+      ICON_ORGANIC,
+      [base.organic || "—"]
+    );
+  }
 
-    if (recChemical) {
-      recChemical.innerHTML = renderRecBlock(T("chemical"), ICON_CHEMICAL, [base.chemical || "—"]);
-    }
+  if (recChemical) {
+    recChemical.innerHTML = renderRecBlock(
+      T("chemical"),
+      ICON_CHEMICAL,
+      [base.chemical || "—"]
+    );
+  }
 
-    if (resultCause) resultCause.textContent = base.cause || "";
-
+  if (resultCause) resultCause.textContent = base.cause || "";
     fillPreventionList(base.prevention);
+
+    // =====================
+    // RIGHT SIDE (ADD THIS)
+    // =====================
+
+    // Titles
+    const alertTitle = document.getElementById("alertTitle");
+    const diseaseDetectedLabel = document.getElementById("diseaseDetectedLabel");
+    const decisionTitle = document.getElementById("decisionConfidenceTitle");
+
+    if (alertTitle) alertTitle.textContent = t.alert;
+    if (diseaseDetectedLabel) diseaseDetectedLabel.textContent = t.detected;
+    if (decisionTitle) decisionTitle.textContent = t.decision_conf;
+
+    // Status text
+    const statusEl = document.getElementById("explainText");
+    if (statusEl) {
+      if (LAST_DIAGNOSIS.confidenceRaw < 0.6) {
+        statusEl.textContent = t.usable;
+      } else {
+        statusEl.textContent = t.reliable;
+      }
+    }
+
+    // Tips list
+    const tipsContainer = document.getElementById("explainTip");
+    if (tipsContainer) {
+      tipsContainer.innerHTML = "";
+
+      t.tips.forEach((tip, i) => {
+        const li = document.createElement("div");
+        li.textContent = `${i + 1}. ${tip}`;
+        tipsContainer.appendChild(li);
+      });
+    }
+
+    const risk = computeRiskLevel(LAST_DIAGNOSIS.labelKey, LAST_DIAGNOSIS.confidenceRaw);
+    const bullets = buildRiskBullets({ risk, labelKey: LAST_DIAGNOSIS.labelKey });
+
+    setRiskUI({
+      risk,
+      diseaseName: base.name,
+      labelKey: LAST_DIAGNOSIS.labelKey,
+      confidencePct: LAST_DIAGNOSIS.confidencePct,
+      bullets
+    });
   }
 
   window.addEventListener("agrivision:languageChanged", rerenderDiagnosisLanguage);
@@ -1401,14 +1491,18 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       const confidencePct = confidenceRaw != null ? `${(confidenceRaw * 100).toFixed(1)}%` : "—%";
 
-      LAST_DIAGNOSIS = {
-        labelKey,
-        confidencePct
-      };
-
       const agreementFromProbs = computeAgreementFromProbabilities(probabilities);
       const agreementScore =
         agreementFromProbs != null ? agreementFromProbs : computeAgreementFallback(confidenceRaw, qualityScore);
+
+      
+      LAST_DIAGNOSIS = {
+        labelKey,
+        confidencePct,
+        confidenceRaw,
+        agreementScore,
+        qualityScore
+      };
 
       const risk = computeRiskLevel(labelKey, confidenceRaw);
 
