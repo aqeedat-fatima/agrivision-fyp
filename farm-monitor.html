@@ -8,139 +8,169 @@
   <link rel="stylesheet" href="assets/css/bootstrap.min.css">
   <link rel="stylesheet" href="assets/css/farm-monitor.css">
 
-  <!-- Leaflet + draw -->
+  <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css"/>
 
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <!-- jsPDF (for download/print like disease reports) -->
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 </head>
 
 <body class="fm-body">
+
+  <!-- TOPBAR -->
   <div class="fm-topbar">
     <div class="fm-left">
-      <a class="fm-back" href="dashboard.html" title="Back to Dashboard" aria-label="Back to Dashboard">←</a>
+      <a class="fm-back" href="dashboard.html">←</a>
 
       <div class="fm-headings">
-        <div class="fm-title">Farm Monitoring</div>
-        <div class="fm-sub">Draw boundary → save farm → Update to track NDVI/NDMI/EVI + change.</div>
+        <div class="fm-title" data-i18n="farm_monitoring">Farm Monitoring</div>
+        <div class="fm-sub" data-i18n="farm_monitoring_desc">
+          Draw boundary → save farm → Update to track NDVI/NDMI/EVI + change.
+        </div>
       </div>
     </div>
 
     <div class="fm-actions">
-      <select class="fm-select" id="farmSelect" title="Select farm"></select>
-      <button class="fm-btn" id="btnSaveFarm">Save Farm</button>
-      <button class="fm-btn" id="btnLoadFarm">Load</button>
-      <button class="fm-btn" id="btnClearFarm">Clear</button>
-      <button class="fm-btn fm-btn-primary" id="btnUpdate">Update Now</button>
+      <select class="fm-select" id="farmSelect">
+        <option value="" data-i18n="select_farm">Select Farm</option>
+      </select>
+
+      <button class="fm-btn" id="btnSaveFarm" data-i18n="save_farm">Save Farm</button>
+      <button class="fm-btn" id="btnLoadFarm" data-i18n="load">Load</button>
+      <button class="fm-btn" id="btnClearFarm" data-i18n="clear">Clear</button>
+      <button class="fm-btn fm-btn-primary" id="btnUpdate" data-i18n="update_now">Update Now</button>
     </div>
   </div>
 
+  <!-- MAIN GRID -->
   <div class="fm-grid">
-    <div class="fm-card" id="mapCard">
-      <div class="fm-card-title">Farm Map</div>
-      <div class="fm-muted">Use the draw tool to mark your farm boundary.</div>
+
+    <!-- MAP -->
+    <div class="fm-card">
+      <div class="fm-card-title" data-i18n="farm_map">Farm Map</div>
+      <div class="fm-muted" data-i18n="farm_map_desc">
+        Use the draw tool to mark your farm boundary.
+      </div>
+
       <div id="map" class="fm-map"></div>
 
       <div class="fm-legend">
-        <span><b>Farm Health View:</b></span>
-        <span class="fm-dot fm-red"></span> Stressed
-        <span class="fm-dot fm-yellow"></span> Moderate
-        <span class="fm-dot fm-green"></span> Healthy
+        <span><b data-i18n="farm_health_view">Farm Health View:</b></span>
+        <span class="fm-dot fm-red"></span> <span data-i18n="stressed">Stressed</span>
+        <span class="fm-dot fm-yellow"></span> <span data-i18n="moderate">Moderate</span>
+        <span class="fm-dot fm-green"></span> <span data-i18n="healthy">Healthy</span>
       </div>
     </div>
 
-    <div class="fm-card" id="statusCard">
+    <!-- STATUS -->
+    <div class="fm-card">
+
       <div class="fm-row fm-row-between">
-        <div class="fm-card-title">Health Status</div>
-        <div class="fm-badge fm-unknown" id="healthBadge">Ready</div>
+        <div class="fm-card-title" data-i18n="health_status">Health Status</div>
+        <div class="fm-badge fm-unknown" id="healthBadge" data-i18n="ready">Ready</div>
       </div>
 
+      <!-- DATE -->
       <div class="fm-row">
         <div class="fm-field">
-          <label>Start Date</label>
+          <label data-i18n="start_date">Start Date</label>
           <input id="startDate" type="date" />
         </div>
         <div class="fm-field">
-          <label>End Date</label>
+          <label data-i18n="end_date">End Date</label>
           <input id="endDate" type="date" />
         </div>
       </div>
 
-      <!-- KPI Grid (now 5 cards) -->
+      <!-- KPIs -->
       <div class="fm-kpis fm-kpis-5">
+
         <div class="fm-kpi">
-          <div class="fm-kpi-label">NDVI (Vegetation)</div>
+          <div class="fm-kpi-label" data-i18n="ndvi_label">NDVI (Vegetation)</div>
           <div class="fm-kpi-val" id="kpiNdvi">—</div>
-          <div class="fm-kpi-sub">Greenness / vigor</div>
+          <div class="fm-kpi-sub" data-i18n="ndvi_desc">Greenness / vigor</div>
         </div>
 
         <div class="fm-kpi">
-          <div class="fm-kpi-label">NDMI (Moisture)</div>
+          <div class="fm-kpi-label" data-i18n="ndmi_label">NDMI (Moisture)</div>
           <div class="fm-kpi-val" id="kpiNdmi">—</div>
-          <div class="fm-kpi-sub">Water stress signal</div>
+          <div class="fm-kpi-sub" data-i18n="ndmi_desc">Water stress signal</div>
         </div>
 
         <div class="fm-kpi">
-          <div class="fm-kpi-label">EVI</div>
+          <div class="fm-kpi-label" data-i18n="evi_label">EVI</div>
           <div class="fm-kpi-val" id="kpiEvi">—</div>
-          <div class="fm-kpi-sub">More robust than NDVI</div>
+          <div class="fm-kpi-sub" data-i18n="evi_desc">More robust than NDVI</div>
         </div>
 
         <div class="fm-kpi">
-          <div class="fm-kpi-label">Cloud Cover</div>
+          <div class="fm-kpi-label" data-i18n="cloud_cover">Cloud Cover</div>
           <div class="fm-kpi-val" id="kpiCloud">—</div>
-          <div class="fm-kpi-sub">Lower is better</div>
+          <div class="fm-kpi-sub" data-i18n="cloud_desc">Lower is better</div>
         </div>
 
         <div class="fm-kpi">
-          <div class="fm-kpi-label">Scene Date</div>
-          <div class="fm-kpi-val fm-kpi-date" id="kpiScene">—</div>
-          <div class="fm-kpi-sub">Latest selected image</div>
+          <div class="fm-kpi-label" data-i18n="scene_date">Scene Date</div>
+          <div class="fm-kpi-val" id="kpiScene">—</div>
+          <div class="fm-kpi-sub" data-i18n="scene_desc">Latest selected image</div>
         </div>
+
       </div>
 
+      <!-- NEXT STEPS -->
       <div class="fm-advice">
         <div class="fm-advice-title fm-row fm-row-between">
-          <span>Next steps</span>
-          <span class="fm-pill" id="ndviChangePill" style="display:none;">NDVI change: —</span>
+          <span data-i18n="next_steps">Next steps</span>
+          <span class="fm-pill" id="ndviChangePill" style="display:none;">
+            NDVI change: —
+          </span>
         </div>
+
         <ul id="adviceList">
-          <li>Select or draw a farm boundary.</li>
-          <li>Tap “Update Now” to fetch satellite indices.</li>
+          <li data-i18n="fm_step_1">Select or draw a farm boundary.</li>
+          <li data-i18n="fm_step_2">Tap “Update Now” to fetch satellite indices.</li>
         </ul>
       </div>
 
+      <!-- TREND -->
       <div class="fm-row fm-row-between" style="margin-top:14px;">
-        <div class="fm-card-title" style="margin:0;">Trend (Weekly)</div>
+        <div class="fm-card-title" data-i18n="trend_weekly">Trend (Weekly)</div>
 
         <div class="fm-toggle">
-          <button class="fm-toggle-btn is-active" data-series="ndvi" id="btnSeriesNdvi">NDVI</button>
-          <button class="fm-toggle-btn" data-series="ndmi" id="btnSeriesNdmi">NDMI</button>
-          <button class="fm-toggle-btn" data-series="evi"  id="btnSeriesEvi">EVI</button>
+          <button class="fm-toggle-btn is-active" data-series="ndvi">NDVI</button>
+          <button class="fm-toggle-btn" data-series="ndmi">NDMI</button>
+          <button class="fm-toggle-btn" data-series="evi">EVI</button>
         </div>
       </div>
 
       <canvas id="trendChart" height="170"></canvas>
 
+      <!-- FOOT -->
       <div class="fm-foot">
-        <div class="fm-tip" id="trendTip">Tip: NDMI helps indicate moisture stress. EVI is often more stable than NDVI under dense canopy.</div>
-        <div class="fm-row" style="margin-top:10px;">
-          <button class="fm-btn" id="btnSaveRun">Save Result</button>
-          <button class="fm-btn" id="btnDownloadRun">Download PDF</button>
-          <button class="fm-btn" id="btnPrintRun">Print</button>
+
+        <div class="fm-tip" data-i18n="fm_tip">
+          Tip: NDMI helps indicate moisture stress. EVI is often more stable than NDVI under dense canopy.
         </div>
+
+        <div class="fm-row" style="margin-top:10px;">
+          <button class="fm-btn" id="btnSaveRun" data-i18n="save_result">Save Result</button>
+          <button class="fm-btn" id="btnDownloadRun" data-i18n="download_pdf">Download PDF</button>
+          <button class="fm-btn" id="btnPrintRun" data-i18n="print">Print</button>
+        </div>
+
       </div>
+
     </div>
   </div>
 
+  <!-- SCRIPTS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+
   <script src="assets/js/global.js"></script>
   <script src="assets/js/theme.js"></script>
   <script src="assets/js/farm-monitor.js"></script>
+
 </body>
 </html>
