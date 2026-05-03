@@ -40,8 +40,8 @@ body.nt-body {
 }
 
 .nt-title {
-  font-size: 22px;
-  font-weight: 800;
+  font-size: 20px;
+  font-weight: 600;
   color: #075f24;
 }
 
@@ -99,8 +99,8 @@ body.nt-body {
 }
 
 .nt-kpi-value {
-  font-size: 28px;
-  font-weight: 800;
+  font-size: 24px;
+  font-weight: 600;
   color: #102033;
 }
 
@@ -159,7 +159,7 @@ body.nt-body {
   margin: 0;
   color: #0b2b18;
   font-size: 18px;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .nt-card-head p {
@@ -212,4 +212,13 @@ body.nt-body {
   .nt-kpis {
     grid-template-columns: 1fr;
   }
+}
+
+.nt-card {
+  transition: all 0.2s ease;
+}
+
+.nt-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px rgba(0,0,0,0.08);
 }

@@ -162,6 +162,18 @@ const I18N = {
 
     crop_disease_alert: "Crop Disease Alert",
     view_reports: "View Detailed Health Reports",
+
+    ndvi_trends_title: "NDVI Trends",
+    ndvi_trends_sub: "View NDVI, EVI, and NDMI trends across all monitored farms.",
+    fields_included: "Fields Included",
+    latest_avg_ndvi: "Latest Avg NDVI",
+    latest_avg_evi: "Latest Avg EVI",
+    latest_avg_ndmi: "Latest Avg NDMI",
+    monitored_farms: "Monitored farms",
+    vegetation_health: "Vegetation health",
+    enhanced_vegetation: "Enhanced vegetation",
+    moisture_signal: "Moisture signal",
+    refresh: "Refresh",
   },
   ur: {
     dashboard: "ڈیش بورڈ",
@@ -326,6 +338,18 @@ const I18N = {
 
     crop_disease_alert: "فصل کی بیماری کی اطلاع",
     view_reports: "تفصیلی رپورٹ دیکھیں",
+
+    ndvi_trends_title: "این ڈی وی آئی رجحانات",
+    ndvi_trends_sub: "تمام مانیٹر شدہ کھیتوں کے NDVI، EVI اور NDMI رجحانات دیکھیں۔",
+    fields_included: "شامل کھیت",
+    latest_avg_ndvi: "تازہ اوسط NDVI",
+    latest_avg_evi: "تازہ اوسط EVI",
+    latest_avg_ndmi: "تازہ اوسط NDMI",
+    monitored_farms: "مانیٹر شدہ کھیت",
+    vegetation_health: "سبزہ / فصل کی صحت",
+    enhanced_vegetation: "بہتر سبزہ اشارہ",
+    moisture_signal: "نمی کا اشارہ",
+    refresh: "دوبارہ لوڈ کریں",
   }
 };
 
