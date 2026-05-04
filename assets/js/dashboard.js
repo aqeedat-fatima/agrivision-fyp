@@ -1787,15 +1787,35 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function loadLastCropStageKPI() {
-  const data = localStorage.getItem("last_crop_stage");
-  if (!data) return;
+  let userId = null;
 
-  const parsed = JSON.parse(data);
+  try {
+    const user = JSON.parse(localStorage.getItem("agrivision_user") || "{}");
+    userId = user.id || user.user_id || null;
+  } catch {
+    userId = null;
+  }
 
   const valueEl = document.getElementById("lastStageValue");
   const subEl = document.getElementById("lastStageSub");
 
   if (!valueEl || !subEl) return;
+
+  if (!userId) {
+    valueEl.textContent = "—";
+    subEl.textContent = "No data yet";
+    return;
+  }
+
+  const data = localStorage.getItem(`last_crop_stage_${userId}`);
+
+  if (!data) {
+    valueEl.textContent = "—";
+    subEl.textContent = "No data yet";
+    return;
+  }
+
+  const parsed = JSON.parse(data);
 
   const icons = {
     Seedling: "🌱",

@@ -149,7 +149,7 @@ async function detectStage() {
 
     stageName.textContent = data.stage || "—";
     // ✅ Save last crop stage for dashboard KPI
-    localStorage.setItem("last_crop_stage", JSON.stringify({
+    localStorage.setItem(`last_crop_stage_${userId}`, JSON.stringify({
       stage: data.stage,
       farmId: selectedFarm.id,
       farmName: selectedFarm.name || selectedFarm.farm_name || "Farm",
