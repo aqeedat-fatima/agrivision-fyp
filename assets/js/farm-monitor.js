@@ -88,9 +88,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const selFarm = document.getElementById("farmSelect");
 
-  const btnSeriesNdvi = document.getElementById("btnSeriesNdvi");
-  const btnSeriesNdmi = document.getElementById("btnSeriesNdmi");
-  const btnSeriesEvi = document.getElementById("btnSeriesEvi");
+  const btnSeriesNdvi = document.querySelector('[data-series="ndvi"]');
+  const btnSeriesNdmi = document.querySelector('[data-series="ndmi"]');
+  const btnSeriesEvi = document.querySelector('[data-series="evi"]');
 
   // ===== Default dates: last 90 days =====
   if (elStart && elEnd) {
